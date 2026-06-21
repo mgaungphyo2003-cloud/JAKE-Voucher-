@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAKE - Phone Service Voucher Generator</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --text-color: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Pyidaungsu';
+            margin: 0;
+            padding: 20px;
+            background-color: #f1f5f9;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Form Styling (ဘယ်ဘက်ခြမ်း) */
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Voucher Preview Styling (ညာဘက်ခြမ်း) */
+        .preview-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .voucher-box {
+            border: 2px dashed #cbd5e1;
+            padding: 20px;
+            background: #fff;
+        }
+
+        .voucher-header {
+            text-align: center;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .shop-name {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .shop-sub {
+            font-size: 13px;
+            margin: 5px 0 0 0;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .details-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .details-table td:first-child {
+            font-weight: 600;
+            color: #64748b;
+            width: 35%;
+        }
+
+        .total-row {
+            border-top: 2px solid #334155;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 20px;
+            border-top: 1px dotted #cbd5e1;
+            padding-top: 10px;
+            font-weight: bold;
+        }
+
+        /* Print Media Query */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .form-section, h2, button {
+                display: none !important;
+            }
+            .container {
+                display: block;
+            }
+            .preview-section {
+                box-shadow: none;
+                padding: 0;
+                border: none;
+            }
+            .voucher-box {
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-section">
+        <h2>Service အချက်အလက်များ</h2>
+        
+        <div class="form-group">
+            <label>ဆိုင်နာမည် (Shop Name)</label>
+            <input type="text" id="inputShopName" value="JAKE" oninput="updateVoucher()">
+        </div>
+        
+        <div class="form-group">
+            <label>ဖုန်းနံပါတ်/လိပ်စာ (Shop Contact)</label>
+            <input type="text" id="inputShopContact" value="Ph: 09797909895" oninput="updateVoucher()">
+        </div>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+
+        <div class="form-group">
+            <label>ရက်စွဲ (Date)</label>
+            <input type="date" id="inputDate" onchange="updateVoucher()">
+        </div>
+
+        <div class="form-group">
+            <label>Voucher No.</label>
+            <input type="text" id="inputVoucherNo" value="V-1001" oninput="updateVoucher()">
+        </div>
+
+        <div class="form-group">
+            <label>Customer နာမည်</label>
+            <input type="text" id="inputCustomer" placeholder="Customer နာမည်ရိုက်ထည့်ရန်" oninput="updateVoucher()">
+        </div>
+
+        <div class="form-group">
+            <label>Customer ဖုန်းနံပါတ်</label>
+            <input type="text" id="inputPhone" value="09" oninput="updateVoucher()">
+        </div>
+
+        <div class="form-group">
+            <label>ဖုန်းအမျိုးအစား (Model)</label>
+            <input type="text" id="inputModel" placeholder="ဥပမာ - Redmi Note 12" oninput="updateVoucher()">
+        </div>
+
+        <div class="form-group">
+            <label>ဖြစ်တဲ့ရောဂါ/ပြင်ဆင်ချက် (Error/Job)</label>
+            <input type="text" id="inputError" placeholder="ဥပမာ - LCD လဲရန်" oninput="updateVoucher()">
+        </div>
+
+        <div class="form-group">
+            <label>အခြေအနေ (Status)</label>
+            <select id="inputStatus" onchange="updateVoucher()">
+                <option value="ပြင်ဆင်ဆဲ (Pending)">ပြင်ဆင်ဆဲ (Pending)</option>
+                <option value="ပြင်ပြီး (Done)">ပြင်ပြီး (Done)</option>
+                <option value="ပြန်ပေးပြီး (Delivered)">ပြန်ပေးပြီး (Delivered)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>ကျသင့်ငွေ (Charges)</label>
+            <input type="number" id="inputCost" placeholder="0" oninput="updateVoucher()">
+        </div>
+
+        <div class="form-group">
+            <label>စရန်ငွေ (Advance)</label>
+            <input type="number" id="inputAdvance" value="0" oninput="updateVoucher()">
+        </div>
+
+        <button onclick="window.print()">Print ထုတ်မည် (သို့) PDF သိမ်းမည်</button>
+    </div>
+
+    <div class="preview-section">
+        <div class="voucher-box" id="printArea">
+            <div class="voucher-header">
+                <div class="shop-name" id="vShopName">JAKE</div>
+                <div class="shop-sub" id="vShopContact">Ph: 09797909895</div>
+            </div>
+
+            <div class="meta-info">
+                <div><b>Voucher:</b> <span id="vVoucherNo">V-1001</span></div>
+                <div><b>Date:</b> <span id="vDate">-</span></div>
+            </div>
+
+            <table class="details-table">
+                <tr>
+                    <td>Customer Name:</td>
+                    <td id="vCustomer">-</td>
+                </tr>
+                <tr>
+                    <td>Contact Phone:</td>
+                    <td id="vPhone">09</td>
+                </tr>
+                <tr>
+                    <td>Phone Model:</td>
+                    <td id="vModel">-</td>
+                </tr>
+                <tr>
+                    <td>Error / Job:</td>
+                    <td id="vError">-</td>
+                </tr>
+                <tr>
+                    <td>Job Status:</td>
+                    <td id="vStatus"><span style="color: #d97706; font-weight: bold;">ပြင်ဆင်ဆဲ (Pending)</span></td>
+                </tr>
+                <tr>
+                    <td>Total Cost:</td>
+                    <td id="vCost">0 MMK</td>
+                </tr>
+                <tr>
+                    <td>Paid Advance:</td>
+                    <td id="vAdvance">0 MMK</td>
+                </tr>
+                <tr class="total-row">
+                    <td style="padding-top: 10px;">Balance Due:</td>
+                    <td style="padding-top: 10px;" id="vBalance">0 MMK</td>
+                </tr>
+            </table>
+
+            <div class="footer-note">
+                <p>ပစ္စည်းအပ်ပြီး (၁)လကျော်ပါက တာဝန်မယူပါ။</p>
+                <p>~ လာရောက်အားပေးမှုကို ကျေးဇူးတင်ပါသည် ~</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // စဖွင့်ဖွင့်ချင်း ဒီနေ့ရက်စွဲကို Input ကွက်လပ်ထဲ Auto ထည့်ပေးခြင်း
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    document.getElementById('inputDate').value = `${year}-${month}-${day}`;
+
+    // Voucher ပေါ်မှာ စာသားပြောင်းပေးမယ့် Function
+    function formatDate(dateString) {
+        if(!dateString) return '-';
+        const d = new Date(dateString);
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        return d.toLocaleDateString('en-GB', options);
+    }
+
+    // ပထမဆုံးအကြိမ် Voucher Date ပြသရန်
+    document.getElementById('vDate').innerText = formatDate(document.getElementById('inputDate').value);
+
+    function updateVoucher() {
+        document.getElementById('vShopName').innerText = document.getElementById('inputShopName').value || 'JAKE';
+        document.getElementById('vShopContact').innerText = document.getElementById('inputShopContact').value || '';
+        document.getElementById('vVoucherNo').innerText = document.getElementById('inputVoucherNo').value || '-';
+        document.getElementById('vCustomer').innerText = document.getElementById('inputCustomer').value || '-';
+        document.getElementById('vPhone').innerText = document.getElementById('inputPhone').value || '-';
+        document.getElementById('vModel').innerText = document.getElementById('inputModel').value || '-';
+        document.getElementById('vError').innerText = document.getElementById('inputError').value || '-';
+        
+        // Date ပြောင်းလဲမှုကို ယူခြင်း
+        document.getElementById('vDate').innerText = formatDate(document.getElementById('inputDate').value);
+
+        const status = document.getElementById('inputStatus').value;
+        const vStatus = document.getElementById('vStatus');
+        vStatus.innerText = status;
+        if(status.includes('Pending')) vStatus.style.color = '#d97706';
+        else if(status.includes('Done')) vStatus.style.color = '#16a34a';
+        else vStatus.style.color = '#2563eb';
+
+        const cost = parseFloat(document.getElementById('inputCost').value) || 0;
+        const advance = parseFloat(document.getElementById('inputAdvance').value) || 0;
+        const balance = cost - advance;
+
+        document.getElementById('vCost').innerText = cost.toLocaleString() + ' MMK';
+        document.getElementById('vAdvance').innerText = advance.toLocaleString() + ' MMK';
+        document.getElementById('vBalance').innerText = balance.toLocaleString() + ' MMK';
+    }
+</script>
+
+</body>
+</html>
