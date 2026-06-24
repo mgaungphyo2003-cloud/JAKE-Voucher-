@@ -55,7 +55,7 @@
             color: #fff;
         }
 
-        /* Active Menu (ဆားဗစ်လက်ခံမည်ကို Highlight ပြထားရန်) */
+        /* Active Menu */
         .sidebar-menu li.active a {
             background-color: #1e282c;
             color: #fff;
@@ -142,26 +142,6 @@
             flex-direction: column;
         }
 
-        .form-group.checkbox-group {
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
-            margin-top: 5px;
-        }
-
-        .form-group.radio-group {
-            flex-direction: row;
-            gap: 20px;
-            align-items: center;
-            margin-top: 5px;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
         label {
             font-weight: 600;
             margin-bottom: 6px;
@@ -186,19 +166,6 @@
         input:focus, select:focus, textarea:focus {
             border-color: #3c8dbc;
             outline: none;
-        }
-
-        .input-with-icon {
-            display: flex;
-            gap: 5px;
-        }
-
-        .btn-icon {
-            background-color: #f4f4f4;
-            border: 1px solid #d2d6de;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
         }
 
         /* 🟢 Register Button */
@@ -233,7 +200,7 @@
             margin-bottom: 5px;
         }
 
-        /* 📱 Responsive Screen (ဖုန်းမျက်နှာပြင်အတွက် ညှိချက်) */
+        /* 📱 Responsive Screen */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -241,12 +208,6 @@
             .sidebar {
                 width: 100%;
                 min-height: auto;
-            }
-            .sidebar-menu {
-                display: none; /* ဖုန်းမှာ menu ကို လတ်တလော ဝှက်ထားနိုင်သည် */
-            }
-            .sidebar-menu.show {
-                display: block;
             }
         }
     </style>
@@ -256,25 +217,8 @@
     <div class="sidebar">
         <div class="sidebar-brand">🔧 REPAIR ADMIN</div>
         <ul class="sidebar-menu">
-            <li><a href="#"><span class="icon">📊</span> Management Dashboard</a></li>
             <li class="active"><a href="#"><span class="icon">📝</span> ဆားဗစ်လက်ခံမည်</a></li>
-            <li><a href="#"><span class="icon">📉</span> Outstanding Dashboard</a></li>
             <li><a href="#"><span class="icon">🔍</span> ဖုန်းရှာမည်</a></li>
-            <li><a href="#"><span class="icon">⏳</span> Repair Timeline</a></li>
-            <li><a href="#"><span class="icon">🔄</span> Warranty / Return</a></li>
-            <li><a href="#"><span class="icon">💳</span> Card User</a></li>
-            <li><a href="#"><span class="icon">👥</span> Card User List</a></li>
-            <li><a href="#"><span class="icon">🏠</span> နယ်ဆိုင် Customer</a></li>
-            <li><a href="#"><span class="icon">📦</span> Parts Request</a></li>
-            <li><a href="#"><span class="icon">📋</span> Technician Parts Ledger</a></li>
-            <li><a href="#"><span class="icon">🛠️</span> Tool Request</a></li>
-            <li><a href="#"><span class="icon">🔧</span> Tool Items</a></li>
-            <li><a href="#"><span class="icon">🚚</span> Batch Transfer</a></li>
-            <li><a href="#"><span class="icon">🛡️</span> Transfer Audit</a></li>
-            <li><a href="#"><span class="icon">💰</span> နေ့ချုပ်</a></li>
-            <li><a href="#"><span class="icon">📓</span> Cashbook / Closing</a></li>
-            <li><a href="#"><span class="icon">💳</span> Payment Channel</a></li>
-            <li><a href="#"><span class="icon">📈</span> Technician Performance</a></li>
             <li><a href="#"><span class="icon">🔒</span> Password ပြောင်းရန်</a></li>
         </ul>
     </div>
@@ -302,7 +246,7 @@
                         
                         <div class="form-group">
                             <label>Voucher ID</label>
-                            <input type="text" id="voucherId" value="26063295" readonly style="background-color: #eee;">
+                            <input type="text" id="voucherId" value="AE-01" readonly style="background-color: #eee;">
                         </div>
 
                         <div class="form-group">
@@ -341,10 +285,6 @@
                         <div class="form-group">
                             <label>Customer Name</label>
                             <input type="text" id="customerName" placeholder="Customer နာမည်ထည့်ရန်">
-                            <div class="form-group checkbox-group">
-                                <input type="checkbox" id="isIsanCustomer">
-                                <label for="isIsanCustomer" style="margin:0; font-size: 13px;">နယ် Customer</label>
-                            </div>
                         </div>
 
                         <div class="form-group">
@@ -355,22 +295,6 @@
                         <div class="form-group">
                             <label>Device Model</label>
                             <input type="text" id="deviceModel" placeholder="ဥပမာ - Redmi Note 13 / Vivo Y91">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Service Return</label>
-                            <div class="form-group radio-group">
-                                <div class="radio-option"><input type="radio" name="serviceReturn" id="retNo" checked><label for="retNo" style="margin:0;">No</label></div>
-                                <div class="radio-option"><input type="radio" name="serviceReturn" id="retYes"><label for="retYes" style="margin:0;">Yes</label></div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>In Warranty</label>
-                            <div class="form-group radio-group">
-                                <div class="radio-option"><input type="radio" name="inWarranty" id="warNo" checked><label for="warNo" style="margin:0;">No</label></div>
-                                <div class="radio-option"><input type="radio" name="inWarranty" id="warYes"><label for="warYes" style="margin:0;">Yes</label></div>
-                            </div>
                         </div>
 
                         <div class="form-group">
@@ -385,9 +309,7 @@
 
                         <div class="form-group">
                             <label>ပြင်ရက်စွဲ</label>
-                            <div class="input-with-icon">
-                                <input type="date" id="repairDate">
-                            </div>
+                            <input type="date" id="repairDate">
                         </div>
 
                         <div class="form-group">
@@ -414,7 +336,7 @@
     </div>
 
     <script>
-        // ယနေ့ရက်စွဲကို ပြင်ရက်စွဲထဲ Auto ထည့်ပေးရန်
+        // ယနေ့ရက်စွဲကို Auto ဖြည့်ပေးရန်
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('repairDate').value = today;
 
@@ -428,7 +350,6 @@
                 return;
             }
 
-            // စာရင်းတိုးသွားသည့် ပုံစံလုပ်ဆောင်ခြင်း
             document.getElementById('todayCountText').innerText = "ယနေ့လာအပ် ဖုန်းစာရင်း (1) လုံး";
             alert('ဆားဗစ်အချက်အလက်ကို အောင်မြင်စွာ register လုပ်ပြီးပါပြီ ခင်ဗျာ။');
         });
