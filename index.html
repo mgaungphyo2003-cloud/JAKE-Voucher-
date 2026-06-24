@@ -3,38 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAKE - Phone Service Voucher Generator</title>
+    <title>JAKE - Phone Service Voucher</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --text-color: #1e293b;
-            --dark-bg: #1e293b;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Pyidaungsu';
+            font-family: 'Segoe UI', Arial, sans-serif, 'Pyidaungsu';
+            background-color: #f1f5f9;
             margin: 0;
             padding: 10px;
-            background-color: #f1f5f9;
-            color: var(--text-color);
+            color: #1e293b;
         }
 
-        .container {
-            max-width: 600px;
+        /* ပင်မ Layout ကို ကွန်ပျူတာမှာ ဘေးချင်းကပ်ပြပြီး ဖုန်းမှာ အပေါ်အောက်ပြမည့်စနစ် */
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding-bottom: 60px;
+            padding: 10px;
         }
 
         .form-section {
+            flex: 1;
             background: white;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .preview-section {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
         }
 
         h2 {
+            color: #2563eb;
             margin-top: 0;
-            color: var(--primary-color);
             border-bottom: 2px solid #e2e8f0;
             padding-bottom: 10px;
             font-size: 20px;
@@ -60,12 +69,6 @@
             font-size: 14px;
         }
 
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
         .btn-confirm {
             background-color: #10b981;
             color: white;
@@ -76,130 +79,18 @@
             font-size: 16px;
             font-weight: bold;
             width: 100%;
-            transition: background 0.2s;
-            margin-top: 10px;
+            margin-top: 15px;
             box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
         }
 
-        .btn-confirm:hover {
-            background-color: #059669;
-        }
-
-        /* --- Sidebar History --- */
-        .sidebar-toggle-btn {
-            position: fixed;
-            left: 0;
-            top: 35%;
-            background: var(--dark-bg);
-            color: white;
-            border: none;
-            padding: 12px 8px;
-            border-radius: 0 8px 8px 0;
-            cursor: pointer;
-            z-index: 999;
-            box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .sidebar-history {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 310px;
-            height: 100%;
-            background: white;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.15);
-            z-index: 1000;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-history.open {
-            transform: translateX(0);
-        }
-
-        .sidebar-header {
-            background: var(--dark-bg);
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .sidebar-content {
-            padding: 15px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 998;
-            display: none;
-        }
-
-        .sidebar-overlay.show {
-            display: block;
-        }
-
-        .history-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
-
-        .status-badge {
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: bold;
-            display: inline-block;
-        }
-
-        /* --- Voucher Preview Modal Popup --- */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            overflow-y: auto;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 10px auto;
-            max-width: 450px;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-
+        /* --- Voucher Ticket Style --- */
         .voucher-box {
+            width: 100%;
+            max-width: 380px;
             border: 2px dashed #cbd5e1;
-            padding: 15px;
+            padding: 20px;
             background: #fff;
+            box-sizing: border-box;
         }
 
         .voucher-header {
@@ -210,15 +101,14 @@
         }
 
         .shop-name {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             margin: 0;
-            text-transform: uppercase;
         }
 
         .shop-sub {
             font-size: 13px;
-            margin: 5px 0 0 0;
+            margin-top: 5px;
             color: #475569;
         }
 
@@ -232,111 +122,73 @@
         .details-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
         }
 
         .details-table td {
-            padding: 6px 0;
+            padding: 8px 0;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .details-table td:first-child {
             font-weight: 600;
             color: #64748b;
-            width: 40%;
+            width: 45%;
         }
 
         .total-row {
             border-top: 2px solid #334155;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: bold;
         }
 
         .footer-note {
             text-align: center;
-            font-size: 11px;
+            font-size: 12px;
             color: #64748b;
-            margin-top: 15px;
+            margin-top: 20px;
             border-top: 1px dotted #cbd5e1;
-            padding-top: 8px;
+            padding-top: 10px;
             font-weight: bold;
         }
 
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
+        /* 📱 ဖုန်းမျက်နှာပြင်အတွက် Responsive ပြင်ဆင်ချက် */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column; /* ဖုန်းမှာ တစ်ခုချင်းစီ အပေါ်အောက်စီပေးမည် */
+            }
         }
 
-        .btn-print {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            flex: 2;
-        }
-
-        .btn-close {
-            background-color: #64748b;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            flex: 1;
-        }
-
+        /* 🖨️ Print ထုတ်မည့်အချိန်အတွက် Style */
         @media print {
             body {
                 background: white;
                 padding: 0;
             }
-            .form-section, .sidebar-toggle-btn, .sidebar-history, .sidebar-overlay, .modal-actions, .btn-close {
-                display: none !important;
+            .form-section, h2, .btn-confirm {
+                display: none !important; /* Print ထဲမှာ Form တွေကို ဖျောက်ထားမည် */
             }
-            .modal {
-                position: absolute;
-                left: 0;
-                top: 0;
-                background: transparent;
+            .main-container {
+                display: block;
                 padding: 0;
-                overflow: visible;
-                display: block !important;
             }
-            .modal-content {
+            .preview-section {
                 box-shadow: none;
-                margin: 0;
                 padding: 0;
-                max-width: 100%;
+                display: block;
             }
             .voucher-box {
                 border: none;
+                max-width: 100%;
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
 
-<button class="sidebar-toggle-btn" onclick="toggleSidebar(true)">
-    <span>📜</span><span>မှ</span><span>တ်</span><span>တ</span><span>မ်း</span>
-</button>
-
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
-
-<div class="sidebar-history" id="sidebarHistory">
-    <div class="sidebar-header">
-        <h3 style="margin: 0; font-size: 15px;">Voucher မှတ်တမ်းများ</h3>
-        <span onclick="toggleSidebar(false)" style="cursor: pointer; font-size: 20px; font-weight: bold;">&times;</span>
-    </div>
-    <div class="sidebar-content" id="historyContainer"></div>
-</div>
-
-<div class="container">
+<div class="main-container">
+    
     <div class="form-section">
         <h2>Service အချက်အလက်များ</h2>
         
@@ -346,10 +198,9 @@
         </div>
         
         <div class="form-group">
-            <label>ဖုန်းနံပါတ်/လိပ်စာ (Shop Contact)</label>
-            <input type="text" id="inputShopContact" value="Ph: 09797909895" readonly style="background-color: #e2e8f0; color: #64748b; cursor: not-allowed;">
+            <label>ဖုန်းနံပါတ် (Shop Contact)</label>
+            <input type="text" id="inputShopContact" value="Ph: 09797909895">
         </div>
-        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
 
         <div class="form-group">
             <label>ရက်စွဲ (Date)</label>
@@ -358,12 +209,12 @@
 
         <div class="form-group">
             <label>Voucher No.</label>
-            <input type="text" id="inputVoucherNo" value="V-1001" readonly style="background-color: #e2e8f0; color: #64748b; cursor: not-allowed;">
+            <input type="text" id="inputVoucherNo" value="V-1001">
         </div>
 
         <div class="form-group">
             <label>Customer နာမည်</label>
-            <input type="text" id="inputCustomer" placeholder="Customer နာမည်ရိုက်ထည့်ရန်">
+            <input type="text" id="inputCustomer" placeholder="Customer နာမည်">
         </div>
 
         <div class="form-group">
@@ -373,17 +224,17 @@
 
         <div class="form-group">
             <label>ဖုန်းအမျိုးအစား (Model)</label>
-            <input type="text" id="inputModel" placeholder="ဥပမာ - Redmi Note 12">
+            <input type="text" id="inputModel" placeholder="ဥပမာ - Redmi Note 13">
         </div>
 
         <div class="form-group">
             <label>ဖုန်းအရောင် (Color)</label>
-            <input type="text" id="inputColor" placeholder="ဥပမာ - Black / Blue / Gold">
+            <input type="text" id="inputColor" placeholder="ဥပမာ - White">
         </div>
 
         <div class="form-group">
             <label>ဖြစ်တဲ့ရောဂါ/ပြင်ဆင်ချက် (Error/Job)</label>
-            <input type="text" id="inputError" placeholder="ဥပမာ - LCD လဲရန်">
+            <input type="text" id="inputError" placeholder="ဥပမာ - Battery Change">
         </div>
 
         <div class="form-group">
@@ -400,13 +251,12 @@
             <select id="inputStatus">
                 <option value="ပြင်ဆင်ဆဲ (Pending)">ပြင်ဆင်ဆဲ (Pending)</option>
                 <option value="ပြင်ပြီး (Done)">ပြင်ပြီး (Done)</option>
-                <option value="ပြန်ပေးပြီး (Delivered)">ပြန်ပေးပြီး (Delivered)</option>
             </select>
         </div>
 
         <div class="form-group">
             <label>ကျသင့်ငွေ (Charges)</label>
-            <input type="number" id="inputCost" placeholder="0">
+            <input type="number" id="inputCost" value="0">
         </div>
 
         <div class="form-group">
@@ -416,11 +266,9 @@
 
         <button class="btn-confirm" id="submitBtn">Voucher အတည်ပြုမည် (Confirm)</button>
     </div>
-</div>
 
-<div class="modal" id="voucherModal">
-    <div class="modal-content">
-        <div class="voucher-box" id="printArea">
+    <div class="preview-section">
+        <div class="voucher-box">
             <div class="voucher-header">
                 <div class="shop-name" id="vShopName">JAKE</div>
                 <div class="shop-sub" id="vShopContact">Ph: 09797909895</div>
@@ -458,7 +306,7 @@
                 </tr>
                 <tr>
                     <td>Job Status:</td>
-                    <td id="vStatus">-</td>
+                    <td id="vStatus" style="color: #d97706; font-weight: bold;">ပြင်ဆင်ဆဲ (Pending)</td>
                 </tr>
                 <tr>
                     <td>Total Cost:</td>
@@ -470,7 +318,7 @@
                 </tr>
                 <tr class="total-row">
                     <td style="padding-top: 8px;">Balance Due:</td>
-                    <td style="padding-top: 8px;" id="vBalance">0 MMK</td>
+                    <td style="padding-top: 8px; color: #ef4444;" id="vBalance">0 MMK</td>
                 </tr>
             </table>
 
@@ -479,142 +327,66 @@
                 <p>~ လာရောက်အားပေးမှုကို ကျေးဇူးတင်ပါသည် ~</p>
             </div>
         </div>
-
-        <div class="modal-actions">
-            <button class="btn-print" onclick="printAndSaveVoucher()">Print / PDF သိမ်းမည်</button>
-            <button class="btn-close" onclick="closeModal()">ပိတ်မည်</button>
-        </div>
     </div>
+
 </div>
 
 <script>
-    // လုံခြုံစိတ်ချရသော နေ့စွဲဖော်မတ်လုပ်ဆောင်ချက်
+    // ရက်စွဲ ပြောင်းလဲပေးသည့် စနစ်
     function formatDate(dateString) {
         if(!dateString) return '-';
-        try {
-            const d = new Date(dateString);
-            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-        } catch(e) { return dateString; }
+        const d = new Date(dateString);
+        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     }
 
-    function toggleSidebar(open) {
-        const sb = document.getElementById('sidebarHistory');
-        const ol = document.getElementById('sidebarOverlay');
-        if(sb) sb.classList.toggle('open', open);
-        if(ol) ol.classList.toggle('show', open);
-    }
+    // အချက်အလက်များအား Voucher ထဲသို့ ထည့်သွင်းပေးသည့် Function
+    function updateVoucher() {
+        document.getElementById('vShopName').innerText = document.getElementById('inputShopName').value || 'JAKE';
+        document.getElementById('vShopContact').innerText = document.getElementById('inputShopContact').value || '';
+        document.getElementById('vVoucherNo').innerText = document.getElementById('inputVoucherNo').value || '-';
+        document.getElementById('vCustomer').innerText = document.getElementById('inputCustomer').value || '-';
+        document.getElementById('vPhone').innerText = document.getElementById('inputPhone').value || '-';
+        document.getElementById('vModel').innerText = document.getElementById('inputModel').value || '-';
+        document.getElementById('vColor').innerText = document.getElementById('inputColor').value || '-';
+        document.getElementById('vError').innerText = document.getElementById('inputError').value || '-';
+        document.getElementById('vSimMem').innerText = document.getElementById('inputSimMem').value;
+        document.getElementById('vDate').innerText = formatDate(document.getElementById('inputDate').value);
 
-    function closeModal() {
-        const modal = document.getElementById('voucherModal');
-        if(modal) modal.style.display = 'none';
-    }
-
-    // စိတ်ချရဆုံးဖြစ်အောင် တိုက်ရိုက်ခေါ်ယူမည့် စနစ်
-    function openConfirmModal() {
-        try {
-            const getValue = (id, fallback = '-') => {
-                const el = document.getElementById(id);
-                return el ? (el.value || fallback) : fallback;
-            };
-
-            document.getElementById('vShopName').innerText = getValue('inputShopName', 'JAKE');
-            document.getElementById('vShopContact').innerText = getValue('inputShopContact', '');
-            document.getElementById('vVoucherNo').innerText = getValue('inputVoucherNo', '-');
-            document.getElementById('vCustomer').innerText = getValue('inputCustomer', '-');
-            document.getElementById('vPhone').innerText = getValue('inputPhone', '-');
-            document.getElementById('vModel').innerText = getValue('inputModel', '-');
-            document.getElementById('vColor').innerText = getValue('inputColor', '-');
-            document.getElementById('vError').innerText = getValue('inputError', '-');
-            document.getElementById('vSimMem').innerText = getValue('inputSimMem', 'မပါ (None)');
-            document.getElementById('vDate').innerText = formatDate(getValue('inputDate', ''));
-
-            const status = getValue('inputStatus', 'ပြင်ဆင်ဆဲ (Pending)');
-            const vStatus = document.getElementById('vStatus');
-            if(vStatus) {
-                vStatus.innerText = status;
-                if(status.includes('Pending')) vStatus.style.color = '#d97706';
-                else if(status.includes('Done')) vStatus.style.color = '#16a34a';
-                else vStatus.style.color = '#2563eb';
-            }
-
-            const cost = parseFloat(getValue('inputCost', '0')) || 0;
-            const advance = parseFloat(getValue('inputAdvance', '0')) || 0;
-            const balance = cost - advance;
-
-            document.getElementById('vCost').innerText = cost.toLocaleString() + ' MMK';
-            document.getElementById('vAdvance').innerText = advance.toLocaleString() + ' MMK';
-            document.getElementById('vBalance').innerText = balance.toLocaleString() + ' MMK';
-
-            const modal = document.getElementById('voucherModal');
-            if(modal) {
-                modal.style.display = 'block';
-            } else {
-                alert("Voucher မျက်နှာပြင်ပြသရန် Error ရှိနေပါသည်။");
-            }
-        } catch (error) {
-            alert("အချက်အလက်များကို ဆွဲယူရာတွင် အမှားရှိနေပါသည်: " + error.message);
+        const status = document.getElementById('inputStatus').value;
+        const vStatus = document.getElementById('vStatus');
+        vStatus.innerText = status;
+        if(status.includes('Pending')) {
+            vStatus.style.color = '#d97706';
+        } else {
+            vStatus.style.color = '#16a34a';
         }
+
+        const cost = parseFloat(document.getElementById('inputCost').value) || 0;
+        const advance = parseFloat(document.getElementById('inputAdvance').value) || 0;
+        const balance = cost - advance;
+
+        document.getElementById('vCost').innerText = cost.toLocaleString() + ' MMK';
+        document.getElementById('vAdvance').innerText = advance.toLocaleString() + ' MMK';
+        document.getElementById('vBalance').innerText = balance.toLocaleString() + ' MMK';
     }
 
-    function printAndSaveVoucher() {
-        try {
-            const getValue = (id, fallback = '-') => {
-                const el = document.getElementById(id);
-                return el ? (el.value || fallback) : fallback;
-            };
+    // Form ထဲ စာရိုက်တာနဲ့ Voucher ထဲမှာ တန်းပြောင်းလဲစေမည့် စနစ် (Live Preview)
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('input', updateVoucher);
+    });
 
-            const voucherNo = getValue('inputVoucherNo');
-            const customer = getValue('inputCustomer');
-            const phone = getValue('inputPhone');
-            const model = getValue('inputModel');
-            const color = getValue('inputColor');
-            const error = getValue('inputError');
-            const simMem = getValue('inputSimMem');
-            const dateFormatted = formatDate(getValue('inputDate'));
-            const status = getValue('inputStatus');
-            
-            const cost = parseFloat(getValue('inputCost', '0')) || 0;
-            const advance = parseFloat(getValue('inputAdvance', '0')) || 0;
-            const balance = cost - advance;
+    // ယနေ့ရက်စွဲကို Auto ဖြည့်ပေးခြင်း
+    const today = new Date();
+    document.getElementById('inputDate').value = today.toISOString().split('T')[0];
+    updateVoucher();
 
-            const newVoucher = {
-                voucherNo, customer, phone, model, color, error, simMem,
-                dateFormatted, status, cost, advance, balance
-            };
+    // Confirm ခလုတ်နှိပ်ပါက Print စနစ် တန်းပွင့်လာစေခြင်း
+    document.getElementById('submitBtn').addEventListener('click', function() {
+        updateVoucher(); // နောက်ဆုံးအချက်အလက်တွေ သေချာအောင် ထပ်မံ Update လုပ်မည်
+        window.print();  // ဖုန်း/ကွန်ပျူတာ၏ Print/PDF သိမ်းဆည်းရန် စာမျက်နှာကို တိုက်ရိုက်ခေါ်ယူမည်
+    });
+</script>
 
-            let history = [];
-            try {
-                history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
-                if(!Array.isArray(history)) history = [];
-            } catch(e) { history = []; }
-            
-            history.unshift(newVoucher);
-            localStorage.setItem('jakeVoucherHistory', JSON.stringify(history));
-
-            displayHistory();
-
-            let numberPart = parseInt(voucherNo.replace(/[^0-9]/g, '')) || 1001;
-            let nextVNo = 'V-' + (numberPart + 1);
-            const vInput = document.getElementById('inputVoucherNo');
-            if(vInput) vInput.value = nextVNo;
-            localStorage.setItem('jakeCurrentVoucherNo', nextVNo);
-
-            window.print();
-            closeModal();
-        } catch(err) {
-            alert("သိမ်းဆည်းရာတွင် အမှားရှိပါသည်: " + err.message);
-        }
-    }
-
-    function displayHistory() {
-        const container = document.getElementById('historyContainer');
-        if(!container) return;
-
-        let history = [];
-        try {
-            history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
-            if(!Array.isArray(history)) history = [];
-        } catch(e) { history = []; }
-        
-        if (history.length === 0) {
-            container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">မှတ်တမ်းမရှိသ
+</body>
+</html>
