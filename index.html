@@ -91,27 +91,9 @@
         }
 
         .navbar-left {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .btn-backup {
-            background-color: #f4f4f4;
-            color: #444;
-            border: 1px solid #ddd;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .select-branch {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-            font-size: 13px;
+            font-weight: bold;
+            color: #3c8dbc;
+            font-size: 16px;
         }
 
         /* 📝 Form Wrapper & Containers */
@@ -187,17 +169,46 @@
             background-color: #008d4c;
         }
 
-        /* 📊 Footer Dashboard List */
+        /* 📊 Footer Dashboard List (ယနေ့လာအပ်ဖုန်းစာရင်း ဇယားကွက်) */
         .dashboard-summary {
             margin-top: 30px;
             text-align: left;
+            border-top: 2px dashed #d2d6de;
+            padding-top: 20px;
         }
 
         .summary-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #222d32;
-            margin-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .list-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .list-table th {
+            background-color: #3c8dbc;
+            color: white;
+            text-align: left;
+            padding: 10px;
+            font-weight: 600;
+        }
+
+        .list-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eeeeeef2;
+        }
+
+        .list-table tr:last-child td {
+            border-bottom: none;
         }
 
         /* 📱 Responsive Screen */
@@ -227,12 +238,7 @@
         
         <div class="navbar">
             <div class="navbar-left">
-                <button class="btn-backup">Backup DataBase</button>
-                <select class="select-branch">
-                    <option value="Hinthada">Hinthada</option>
-                    <option value="Yangon">Yangon</option>
-                    <option value="Mandalay">Mandalay</option>
-                </select>
+                <span>ဆားဗစ်အချက်အလက်များ ထည့်သွင်းခြင်း</span>
             </div>
             <div class="navbar-right">
                 <span>Admin 👤</span>
@@ -246,7 +252,7 @@
                         
                         <div class="form-group">
                             <label>Voucher ID</label>
-                            <input type="text" id="voucherId" value="AE-01" readonly style="background-color: #eee;">
+                            <input type="text" id="voucherId" value="AE-01" readonly style="background-color: #eee; font-weight: bold; color: #3c8dbc;">
                         </div>
 
                         <div class="form-group">
@@ -313,11 +319,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Error</label>
-                            <textarea id="errorDetail" rows="3" placeholder="ဖြစ်ပွားသည့် ပြစ်ချက်ရောဂါ..."></textarea>
-                        </div>
-
-                        <div class="form-group">
                             <label>Remark</label>
                             <textarea id="remarkDetail" rows="3" placeholder="မှတ်ချက်များ..."></textarea>
                         </div>
@@ -329,6 +330,20 @@
 
                 <div class="dashboard-summary">
                     <div class="summary-title" id="todayCountText">ယနေ့လာအပ် ဖုန်းစာရင်း (0) လုံး</div>
+                    
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th>Voucher ID</th>
+                                <th>Customer Name</th>
+                                <th>Device Model</th>
+                                <th>Phone Color</th>
+                                <th>ကုန်ကျငွေ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="phoneListBody">
+                            </tbody>
+                    </table>
                 </div>
 
             </div>
@@ -336,23 +351,67 @@
     </div>
 
     <script>
+        // စာရင်းတွက်ချက်ရန် Variable များ
+        let phoneCount = 0;
+        let currentVoucherNum = 1;
+
+        // Voucher ID ကို AE-01, AE-02 ပုံစံဖြင့် ပြောင်းလဲပေးသည့် Function
+        function updateVoucherIdDisplay() {
+            document.getElementById('voucherId').value = "AE-" + String(currentVoucherNum).padStart(2, '0');
+        }
+
         // ယနေ့ရက်စွဲကို Auto ဖြည့်ပေးရန်
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('repairDate').value = today;
 
-        // Register ခလုတ်နှိပ်သည့်အခါ အလုပ်လုပ်မည့်စနစ်
+        // Register ခလုတ်နှိပ်သည့်အခါ အောက်ကဇယားထဲ စာရင်းထည့်သွင်းပေးမည့်စနစ်
         document.getElementById('registerBtn').addEventListener('click', function() {
+            const vId = document.getElementById('voucherId').value;
             const customer = document.getElementById('customerName').value;
+            const phone = document.getElementById('customerPhone').value;
             const model = document.getElementById('deviceModel').value;
+            const color = document.getElementById('phoneColor').value || '-';
+            const cost = document.getElementById('estimatedCost').value || '0';
 
+            // မဖြစ်မနေလိုအပ်သော Field များ စစ်ဆေးခြင်း
             if(!customer || !model) {
                 alert('ကျေးဇူးပြု၍ Customer Name နှင့် Device Model ကို ဖြည့်စွက်ပေးပါဗျာ။');
                 return;
             }
 
-            document.getElementById('todayCountText').innerText = "ယနေ့လာအပ် ဖုန်းစာရင်း (1) လုံး";
-            alert('ဆားဗစ်အချက်အလက်ကို အောင်မြင်စွာ register လုပ်ပြီးပါပြီ ခင်ဗျာ။');
+            // ဇယားကွက်ထဲသို့ Row အသစ် တိုးမြှင့်ထည့်သွင်းခြင်း
+            const tbody = document.getElementById('phoneListBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="font-weight: bold; color: #3c8dbc;">${vId}</td>
+                <td><b>${customer}</b><br><small style="color:#666;">${phone}</small></td>
+                <td>${model}</td>
+                <td>${color}</td>
+                <td style="color: #00a65a; font-weight: bold;">${Number(cost).toLocaleString()} MMK</td>
+            `;
+            tbody.appendChild(row);
+
+            // အရေအတွက်ကို တိုးမြှင့်ခြင်း
+            phoneCount++;
+            document.getElementById('todayCountText').innerText = `ယနေ့လာအပ် ဖုန်းစာရင်း (${phoneCount}) လုံး`;
+
+            // နောက်တစ်ကြိမ် ဖုန်းအသစ်ထည့်ရလွယ်ကူစေရန် လက်ရှိ Form ပါ အကွက်များကို ရှင်းလင်းပေးခြင်း
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('deviceModel').value = '';
+            document.getElementById('phoneColor').value = '';
+            document.getElementById('estimatedCost').value = '0';
+            document.getElementById('remarkDetail').value = '';
+
+            // Voucher ID ကို AE-02, AE-03 စသည်ဖြင့် Auto တစ်ဆင့်တိုးပေးခြင်း
+            currentVoucherNum++;
+            updateVoucherIdDisplay();
+
+            alert('ဆားဗစ်အချက်အလက်ကို စာရင်းထဲသို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ ခင်ဗျာ။');
         });
+
+        // စတင်ချိန်တွင် Voucher ID ကို Initial လုပ်ပေးထားခြင်း
+        updateVoucherIdDisplay();
     </script>
 </body>
 </html>
