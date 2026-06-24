@@ -86,7 +86,7 @@
             background-color: #059669;
         }
 
-        /* --- ဘယ်ဘက်ဘေးကပ်လျက် Sidebar History ဒီဇိုင်းသစ် --- */
+        /* --- ဘယ်ဘက်ဘေးကပ်လျက် Sidebar History --- */
         .sidebar-toggle-btn {
             position: fixed;
             left: 0;
@@ -339,7 +339,7 @@
         <span onclick="toggleSidebar(false)" style="cursor: pointer; font-size: 20px; font-weight: bold;">&times;</span>
     </div>
     <div class="sidebar-content" id="historyContainer">
-        <!-- မှတ်တမ်းများ (ဖျက်မရအောင် ပိတ်ထားဆဲဖြစ်သည်) -->
+        <!-- မှတ်တမ်းများ -->
     </div>
 </div>
 
@@ -383,7 +383,6 @@
             <input type="text" id="inputModel" placeholder="ဥပမာ - Redmi Note 12">
         </div>
 
-        <!-- ဖုန်းအရောင် Function အသစ် -->
         <div class="form-group">
             <label>ဖုန်းအရောင် (Color)</label>
             <input type="text" id="inputColor" placeholder="ဥပမာ - Black / Blue / Gold">
@@ -498,18 +497,25 @@
 
 <script>
     // ရက်စွဲသတ်မှတ်ချက်
-    const today = new Date();
-    document.getElementById('inputDate').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    try {
+        const today = new Date();
+        document.getElementById('inputDate').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    } catch(e) { console.log(e); }
 
     function formatDate(dateString) {
         if(!dateString) return '-';
-        const d = new Date(dateString);
-        return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        try {
+            const d = new Date(dateString);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        } catch(e) { return dateString; }
     }
     
     const savedVoucherNo = localStorage.getItem('jakeCurrentVoucherNo') || 'V-1001';
-    document.getElementById('inputVoucherNo').value = savedVoucherNo;
+    if(document.getElementById('inputVoucherNo')) {
+        document.getElementById('inputVoucherNo').value = savedVoucherNo;
+    }
 
+    // စိတ်ချရသော အနေအထားဖြင့် History ပြသခြင်း
     displayHistory();
 
     function toggleSidebar(open) {
@@ -518,35 +524,39 @@
     }
 
     function openConfirmModal() {
-        // Form အချက်အလက်များကို Voucher Preview ထဲသို့ ထည့်သွင်းခြင်း
-        document.getElementById('vShopName').innerText = document.getElementById('inputShopName').value || 'JAKE';
-        document.getElementById('vShopContact').innerText = document.getElementById('inputShopContact').value || '';
-        document.getElementById('vVoucherNo').innerText = document.getElementById('inputVoucherNo').value || '-';
-        document.getElementById('vCustomer').innerText = document.getElementById('inputCustomer').value || '-';
-        document.getElementById('vPhone').innerText = document.getElementById('inputPhone').value || '-';
-        document.getElementById('vModel').innerText = document.getElementById('inputModel').value || '-';
-        document.getElementById('vColor').innerText = document.getElementById('inputColor').value || '-'; // အရောင်ထည့်သွင်းမှု
-        document.getElementById('vError').innerText = document.getElementById('inputError').value || '-';
-        document.getElementById('vSimMem').innerText = document.getElementById('inputSimMem').value;
-        document.getElementById('vDate').innerText = formatDate(document.getElementById('inputDate').value);
+        try {
+            document.getElementById('vShopName').innerText = document.getElementById('inputShopName').value || 'JAKE';
+            document.getElementById('vShopContact').innerText = document.getElementById('inputShopContact').value || '';
+            document.getElementById('vVoucherNo').innerText = document.getElementById('inputVoucherNo').value || '-';
+            document.getElementById('vCustomer').innerText = document.getElementById('inputCustomer').value || '-';
+            document.getElementById('vPhone').innerText = document.getElementById('inputPhone').value || '-';
+            document.getElementById('vModel').innerText = document.getElementById('inputModel').value || '-';
+            document.getElementById('vColor').innerText = document.getElementById('inputColor').value || '-';
+            document.getElementById('vError').innerText = document.getElementById('inputError').value || '-';
+            document.getElementById('vSimMem').innerText = document.getElementById('inputSimMem').value || 'မပါ (None)';
+            document.getElementById('vDate').innerText = formatDate(document.getElementById('inputDate').value);
 
-        const status = document.getElementById('inputStatus').value;
-        const vStatus = document.getElementById('vStatus');
-        vStatus.innerText = status;
-        if(status.includes('Pending')) vStatus.style.color = '#d97706';
-        else if(status.includes('Done')) vStatus.style.color = '#16a34a';
-        else vStatus.style.color = '#2563eb';
+            const status = document.getElementById('inputStatus').value || 'ပြင်ဆင်ဆဲ (Pending)';
+            const vStatus = document.getElementById('vStatus');
+            vStatus.innerText = status;
+            
+            if(status.includes('Pending')) vStatus.style.color = '#d97706';
+            else if(status.includes('Done')) vStatus.style.color = '#16a34a';
+            else vStatus.style.color = '#2563eb';
 
-        const cost = parseFloat(document.getElementById('inputCost').value) || 0;
-        const advance = parseFloat(document.getElementById('inputAdvance').value) || 0;
-        const balance = cost - advance;
+            const cost = parseFloat(document.getElementById('inputCost').value) || 0;
+            const advance = parseFloat(document.getElementById('inputAdvance').value) || 0;
+            const balance = cost - advance;
 
-        document.getElementById('vCost').innerText = cost.toLocaleString() + ' MMK';
-        document.getElementById('vAdvance').innerText = advance.toLocaleString() + ' MMK';
-        document.getElementById('vBalance').innerText = balance.toLocaleString() + ' MMK';
+            document.getElementById('vCost').innerText = cost.toLocaleString() + ' MMK';
+            document.getElementById('vAdvance').innerText = advance.toLocaleString() + ' MMK';
+            document.getElementById('vBalance').innerText = balance.toLocaleString() + ' MMK';
 
-        // Modal ကို ဖွင့်ပြခြင်း
-        document.getElementById('voucherModal').style.display = 'block';
+            // Modal ဖွင့်ရန်
+            document.getElementById('voucherModal').style.display = 'block';
+        } catch (error) {
+            alert("စနစ်အတွင်း အမှားတစ်ခုရှိနေပါသည်- " + error.message);
+        }
     }
 
     function closeModal() {
@@ -560,9 +570,9 @@
         const model = document.getElementById('inputModel').value || '-';
         const color = document.getElementById('inputColor').value || '-';
         const error = document.getElementById('inputError').value || '-';
-        const simMem = document.getElementById('inputSimMem').value;
+        const simMem = document.getElementById('inputSimMem').value || 'မပါ (None)';
         const dateFormatted = formatDate(document.getElementById('inputDate').value);
-        const status = document.getElementById('inputStatus').value;
+        const status = document.getElementById('inputStatus').value || 'ပြင်ဆင်ဆဲ (Pending)';
         const cost = parseFloat(document.getElementById('inputCost').value) || 0;
         const advance = parseFloat(document.getElementById('inputAdvance').value) || 0;
         const balance = cost - advance;
@@ -572,13 +582,16 @@
             dateFormatted, status, cost, advance, balance
         };
 
-        let history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
+        let history = [];
+        try {
+            history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
+        } catch(e) { history = []; }
+        
         history.unshift(newVoucher);
         localStorage.setItem('jakeVoucherHistory', JSON.stringify(history));
 
         displayHistory();
 
-        // Voucher Number တိုးခြင်း
         let numberPart = parseInt(voucherNo.replace(/[^0-9]/g, '')) || 1001;
         let nextVNo = 'V-' + (numberPart + 1);
         document.getElementById('inputVoucherNo').value = nextVNo;
@@ -589,18 +602,9 @@
     }
 
     function displayHistory() {
-        const history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
         const container = document.getElementById('historyContainer');
-        
-        if (history.length === 0) {
-            container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">မှတ်တမ်းမရှိသေးပါ။</p>';
-            return;
-        }
+        if(!container) return;
 
-        let htmlContent = '';
-        let currentGroupDate = '';
-
-        history.forEach((item) => {
-            if (currentGroupDate !== item.dateFormatted) {
-                currentGroupDate = item.dateFormatted;
-                htmlCo
+        let history = [];
+        try {
+            history = JSON.parse(localStorage.g
