@@ -211,10 +211,10 @@
             background-color: #0073b7;
             color: white;
             border: none;
-            padding: 5px 12px;
+            padding: 5px 14px;
             border-radius: 3px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
             transition: background 0.2s;
         }
@@ -351,7 +351,8 @@
                                 <th>Device Model</th>
                                 <th>Phone Color</th>
                                 <th>ကုန်ကျငွေ</th>
-                                <th>လုပ်ဆောင်ချက်</th> </tr>
+                                <th>လုပ်ဆောင်ချက်</th>
+                            </tr>
                         </thead>
                         <tbody id="phoneListBody">
                         </tbody>
@@ -425,17 +426,16 @@
             alert('ဆားဗစ်အချက်အလက်ကို စာရင်းထဲသို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ ခင်ဗျာ။');
         });
 
-        // 🖨️ ပေးထားသော ပုံစံအတိုင်း တစ်ထေရာတည်းထွက်မည့် A5 Print Function
+        // 🖨️ A5 Print Function
         function printVoucher(index) {
             const data = repairRecords[index];
             
-            // ရက်စွဲပုံစံ ပြင်ဆင်ရန် (YYYY-MM-DD -> DD-MM-YYYY)
             const dateParts = data.date.split('-');
             const formattedDate = dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : data.date;
 
             const printWindow = window.open('', '_blank', 'width=800,height=1000');
             
-            printWindow.document.write(`
+            const htmlContent = `
                 <html>
                 <head>
                     <title>Print Voucher - ${data.vId}</title>
@@ -453,11 +453,9 @@
                         }
                         .main-container {
                             width: 100%;
-                            max-width: 140mm; /* A5 standard width */
+                            max-width: 140mm;
                             margin: 0 auto;
                         }
-                        
-                        /* 🎫 Top Large Section */
                         .top-voucher-box {
                             border: 1px solid #000;
                             padding: 12px;
@@ -465,7 +463,6 @@
                             border-radius: 4px;
                             min-height: 240px;
                         }
-                        /* Faint watermark background logo matching the style */
                         .watermark {
                             position: absolute;
                             top: 40%;
@@ -493,8 +490,6 @@
                             vertical-align: top;
                         }
                         .label-text { font-weight: bold; }
-                        
-                        /* စည်းကမ်းချက်များ */
                         .terms-box {
                             margin-top: 12px;
                             font-size: 10.5px;
@@ -507,8 +502,6 @@
                             font-weight: bold;
                             font-size: 11px;
                         }
-
-                        /* ✂️ Divider Line */
                         .divider {
                             border-top: 1px dashed #000;
                             margin: 15px 0;
@@ -522,13 +515,6 @@
                             padding: 0 5px;
                             font-size: 11px;
                             font-weight: bold;
-                        }
-
-                        /* 📊 Bottom Columns Section (Receive) */
-                        .bottom-section-title {
-                            font-weight: bold;
-                            font-size: 13px;
-                            margin-bottom: 5px;
                         }
                         .twin-columns {
                             display: grid;
@@ -553,6 +539,93 @@
                 </head>
                 <body>
                     <div class="main-container">
-                        
                         <div class="top-voucher-box">
-                        
+                            <div class="watermark">JAKE</div>
+                            <div class="content-inner">
+                                <table class="header-table">
+                                    <tr>
+                                        <td>
+                                            <span style="font-size: 15px; font-weight: bold;">Name :</span> ${data.customer}<br>
+                                            <span style="font-size: 13px; font-weight: bold;">Phone :</span> ${data.phone}
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <span style="font-weight: bold;">Date :</span> ${formattedDate}<br>
+                                            <span style="font-weight: bold;">VoucherID :</span> <span style="font-size:13px; font-weight:bold;">${data.vId}</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <div style="margin-top: 10px; border-bottom: 1px solid #000; padding-bottom: 5px;">
+                                    <table class="info-table">
+                                        <tr>
+                                            <td style="width: 50%;"><span class="label-text">Model :</span> ${data.model}</td>
+                                            <td style="width: 50%;"><span class="label-text">Color :</span> ${data.color}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="label-text">IMEI :</span> ${data.imei}</td>
+                                            <td><span class="label-text">ခန့်မှန်းကုန်ကျငွေ :</span> <b>${Number(data.cost).toLocaleString()}</b></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"><span class="label-text">Error :</span> ${data.jobType} ${data.remark !== '-' ? ' [' + data.remark + ']' : ''}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <div class="terms-box">
+                                    *ဘောင်ချာမပါလျှင် ပစ္စည်း (လုံးဝ) မပေးပါ။<br>
+                                    *ပြုပြင်ထားသော ပစ္စည်းများ (၁)လကျော်လျှင် လုံးဝ တာဝန်မယူပါ။<br>
+                                    *ဖုန်း၏ချို့ယွင်းနေသော အစိတ်အပိုင်းတစ်ခုတည်းကိုသာ တာဝန်ယူပါသည်။<br>
+                                    *ရေစိုထားသည့်ဖုန်းများ ပြုပြင်နေစဉ်အတွင်း Power သေလျှင်တာဝန်မယူပါ။
+                                </div>
+                                
+                                <div class="received-sign">လက်ခံရရှိပါသည် .......................</div>
+                            </div>
+                        </div>
+
+                        <div class="divider"><span class="divider-label">Receive</span></div>
+
+                        <div class="twin-columns">
+                            <div class="sub-receipt-box">
+                                <table class="sub-table">
+                                    <tr><td><b>Name :</b> ${data.customer}</td><td><b>Date :</b> ${formattedDate}</td></tr>
+                                    <tr><td><b>Ph :</b> ${data.phone}</td><td><b>ID :</b> ${data.vId}</td></tr>
+                                    <tr><td><b>Model :</b> ${data.model}</td><td><b>Color :</b> ${data.color}</td></tr>
+                                    <tr><td colspan="2"><b>Error :</b> ${data.jobType}</td></tr>
+                                    <tr><td><b>In Warranty:</b> No</td><td><b>ခန့်မှန်းကုန်ကျငွေ :</b> ${Number(data.cost).toLocaleString()}</td></tr>
+                                    <tr><td><b>IMEI No.:</b> ${data.imei}</td><td><b>Service Return:</b> No</td></tr>
+                                </table>
+                            </div>
+                            <div class="sub-receipt-box">
+                                <table class="sub-table">
+                                    <tr><td><b>Name :</b> ${data.customer}</td><td><b>Date :</b> ${formattedDate}</td></tr>
+                                    <tr><td><b>Ph :</b> ${data.phone}</td><td><b>ID :</b> ${data.vId}</td></tr>
+                                    <tr><td><b>Model :</b> ${data.model}</td><td><b>Color :</b> ${data.color}</td></tr>
+                                    <tr><td colspan="2"><b>Error :</b> ${data.jobType}</td></tr>
+                                    <tr><td><b>In Warranty:</b> No</td><td><b>ခန့်မှန်းကုန်ကျငွေ :</b> ${Number(data.cost).toLocaleString()}</td></tr>
+                                    <tr><td><b>IMEI No.:</b> ${data.imei}</td><td><b>Service Return:</b> No</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(htmlContent);
+            
+            const scriptInline = printWindow.document.createElement('script');
+            scriptInline.type = 'text/javascript';
+            scriptInline.text = `
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() { window.close(); }, 500);
+                };
+            `;
+            printWindow.document.body.appendChild(scriptInline);
+            printWindow.document.close();
+        }
+
+        updateVoucherIdDisplay();
+    </script>
+</body>
+</html>
