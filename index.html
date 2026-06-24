@@ -164,13 +164,52 @@
             font-weight: bold;
         }
 
+        /* History Section Styling */
+        .history-section {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-top: 10px;
+        }
+
+        .history-header-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .history-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
         /* Print Media Query */
         @media print {
             body {
                 background: white;
                 padding: 0;
             }
-            .form-section, h2, button {
+            .form-section, h2, button, .history-section {
                 display: none !important;
             }
             .container {
@@ -253,7 +292,7 @@
             <input type="number" id="inputAdvance" value="0" oninput="updateVoucher()">
         </div>
 
-        <button onclick="window.print()">Print ထုတ်မည် (သို့) PDF သိမ်းမည်</button>
+        <button onclick="printAndSaveVoucher()">Print ထုတ်မည် (သို့) PDF သိမ်းမည်</button>
     </div>
 
     <div class="preview-section">
@@ -309,6 +348,15 @@
             </div>
         </div>
     </div>
+
+    <div class="history-section">
+        <div class="history-header-wrapper">
+            <h2 style="margin: 0; border: none; padding: 0;">Voucher မှတ်တမ်းများ (History)</h2>
+            <button onclick="clearAllHistory()" style="background-color: #ef4444; width: auto; padding: 8px 15px; font-size: 14px;">မှတ်တမ်းအားလုံးဖျက်မည်</button>
+        </div>
+        <div id="historyContainer">
+            </div>
+    </div>
 </div>
 
 <script>
@@ -329,6 +377,9 @@
 
     // ပထမဆုံးအကြိမ် Voucher Date ပြသရန်
     document.getElementById('vDate').innerText = formatDate(document.getElementById('inputDate').value);
+    
+    // Page စဖွင့်တာနဲ့ ရှိပြီးသား History ကို ထုတ်ပြရန်
+    displayHistory();
 
     function updateVoucher() {
         document.getElementById('vShopName').innerText = document.getElementById('inputShopName').value || 'JAKE';
@@ -356,6 +407,106 @@
         document.getElementById('vCost').innerText = cost.toLocaleString() + ' MMK';
         document.getElementById('vAdvance').innerText = advance.toLocaleString() + ' MMK';
         document.getElementById('vBalance').innerText = balance.toLocaleString() + ' MMK';
+    }
+
+    // --- ဘောက်ချာသိမ်းဆည်းခြင်းနှင့် မှတ်တမ်းပြသခြင်းဆိုင်ရာ လုပ်ဆောင်ချက်အသစ်များ ---
+
+    function printAndSaveVoucher() {
+        // လက်ရှိ ရိုက်ထည့်ထားတဲ့ အချက်အလက်တွေကို ရယူမယ်
+        const voucherNo = document.getElementById('inputVoucherNo').value || '-';
+        const customer = document.getElementById('inputCustomer').value || '-';
+        const phone = document.getElementById('inputPhone').value || '-';
+        const model = document.getElementById('inputModel').value || '-';
+        const error = document.getElementById('inputError').value || '-';
+        const dateRaw = document.getElementById('inputDate').value;
+        const dateFormatted = formatDate(dateRaw);
+        const status = document.getElementById('inputStatus').value;
+        const cost = parseFloat(document.getElementById('inputCost').value) || 0;
+        const advance = parseFloat(document.getElementById('inputAdvance').value) || 0;
+        const balance = cost - advance;
+
+        // အချက်အလက်အသစ်ကို Object တစ်ခုအဖြစ် စုစည်းမယ်
+        const newVoucher = {
+            voucherNo, customer, phone, model, error,
+            dateFormatted, status, cost, advance, balance
+        };
+
+        // localStorage ထဲက ရှိပြီးသား မှတ်တမ်းကို ဆွဲထုတ်မယ်
+        let history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
+        
+        // အသစ်ဆုံး ဘောက်ချာကို ထိပ်ဆုံးကနေ ထည့်သွင်းမယ်
+        history.unshift(newVoucher);
+        
+        // localStorage ထဲ ပြန်သိမ်းမယ်
+        localStorage.setItem('jakeVoucherHistory', JSON.stringify(history));
+
+        // မှတ်တမ်းဇယားကို ချက်ချင်း Update လုပ်မယ်
+        displayHistory();
+
+        // System ရဲ့ Print Box ကို ခေါ်ပေးမယ်
+        window.print();
+    }
+
+    function displayHistory() {
+        const history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
+        const container = document.getElementById('historyContainer');
+        
+        if (history.length === 0) {
+            container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px; font-weight: 500;">သိမ်းဆည်းထားသော ဗောက်ချာမှတ်တမ်း မရှိသေးပါ။</p>';
+            return;
+        }
+
+        let htmlContent = '';
+        let currentGroupDate = '';
+
+        history.forEach((item, index) => {
+            // ရက်စွဲအလိုက် ခေါင်းစဉ်ခွဲပေးခြင်း
+            if (currentGroupDate !== item.dateFormatted) {
+                currentGroupDate = item.dateFormatted;
+                htmlContent += `<h3 style="color: #475569; margin-top: 20px; margin-bottom: 10px; border-left: 4px solid var(--primary-color); padding-left: 10px; font-size: 16px;">📅 ရက်စွဲ - ${currentGroupDate}</h3>`;
+            }
+
+            // Status Badge အရောင် သတ်မှတ်ချက်
+            let bgStyle = '#fef3c7', textStyle = '#d97706';
+            if(item.status.includes('Done')) { bgStyle = '#dcfce7'; textStyle = '#15803d'; }
+            if(item.status.includes('Delivered')) { bgStyle = '#dbeafe'; textStyle = '#1d4ed8'; }
+
+            htmlContent += `
+                <div class="history-card">
+                    <div>
+                        <span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; color: #334155;">${item.voucherNo}</span>
+                        <strong style="margin-left: 8px; color: #1e293b;">${item.customer}</strong> (${item.phone}) <br>
+                        <span style="font-size: 13px; color: #475569; display: inline-block; margin-top: 4px;">🛠️ ${item.model} [${item.error}]</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="text-align: right; font-size: 13px;">
+                            <span>ကျသင့်: <b>${item.cost.toLocaleString()}</b> MMK</span> | 
+                            <span>ကျန်ငွေ: <b style="color: #ef4444;">${item.balance.toLocaleString()}</b> MMK</span>
+                        </div>
+                        <span class="status-badge" style="background: ${bgStyle}; color: ${textStyle};">${item.status.split(' ')[0]}</span>
+                        <button onclick="deleteVoucher(${index})" style="background: #fee2e2; color: #ef4444; border: none; padding: 6px 12px; border-radius: 4px; width: auto; font-size: 12px; cursor: pointer; font-weight: normal;">ဖျက်ရန်</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = htmlContent;
+    }
+
+    function deleteVoucher(index) {
+        if(confirm("ဤဗောက်ချာမှတ်တမ်းကို ဖျက်ရန် သေချာပါသလား?")) {
+            let history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
+            history.splice(index, 1);
+            localStorage.setItem('jakeVoucherHistory', JSON.stringify(history));
+            displayHistory();
+        }
+    }
+
+    function clearAllHistory() {
+        if(confirm("ဗောက်ချာမှတ်တမ်းအားလုံးကို ထာဝရဖျက်ပစ်ရန် သေချာပါသလား?")) {
+            localStorage.removeItem('jakeVoucherHistory');
+            displayHistory();
+        }
     }
 </script>
 
