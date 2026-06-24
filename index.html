@@ -363,7 +363,6 @@
     </div>
 
     <script>
-        // ဒေတာများကို ယာယီသိမ်းဆည်းထားမည့် Array 
         let repairRecords = [];
         let currentVoucherNum = 1;
 
@@ -382,20 +381,21 @@
             const model = document.getElementById('deviceModel').value;
             const color = document.getElementById('phoneColor').value || '-';
             const cost = document.getElementById('estimatedCost').value || '0';
-            const sType = document.getElementById('serviceType').value || document.getElementById('serviceGroup').value || '-';
+            const sGroup = document.getElementById('serviceGroup').value || '';
+            const sType = document.getElementById('serviceType').value || '';
+            const jobType = sType ? `${sGroup} (${sType})` : (sGroup || 'General Service');
             const date = document.getElementById('repairDate').value;
             const remark = document.getElementById('remarkDetail').value || '-';
+            const imei = document.getElementById('imeiNo').value || '-';
 
             if(!customer || !model) {
                 alert('ကျေးဇူးပြု၍ Customer Name နှင့် Device Model ကို ဖြည့်စွက်ပေးပါဗျာ။');
                 return;
             }
 
-            // Object အဖြစ် Record ထဲ သိမ်းဆည်းခြင်း
             const recordIndex = repairRecords.length;
-            repairRecords.push({ vId, customer, phone, model, color, cost, sType, date, remark });
+            repairRecords.push({ vId, customer, phone, model, color, cost, jobType, date, remark, imei });
 
-            // ဇယားထဲ စာရင်းသွင်းခြင်း (Print ခလုတ်ကိုပါ တစ်ပါတည်းထည့်သွင်း)
             const tbody = document.getElementById('phoneListBody');
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -410,13 +410,14 @@
 
             document.getElementById('todayCountText').innerText = `ယနေ့လာအပ် ဖုန်းစာရင်း (${repairRecords.length}) လုံး`;
 
-            // Form ရှင်းလင်းခြင်း
+            // Form Fields ပြန်ရှင်းခြင်း
             document.getElementById('customerName').value = '';
             document.getElementById('customerPhone').value = '';
             document.getElementById('deviceModel').value = '';
             document.getElementById('phoneColor').value = '';
             document.getElementById('estimatedCost').value = '0';
             document.getElementById('remarkDetail').value = '';
+            document.getElementById('imeiNo').value = '';
 
             currentVoucherNum++;
             updateVoucherIdDisplay();
@@ -424,115 +425,134 @@
             alert('ဆားဗစ်အချက်အလက်ကို စာရင်းထဲသို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ ခင်ဗျာ။');
         });
 
-        // 🖨️ ချက်ချင်း Voucher Slip ထုတ်ပေးမည့် Print Function
+        // 🖨️ ပေးထားသော ပုံစံအတိုင်း တစ်ထေရာတည်းထွက်မည့် A5 Print Function
         function printVoucher(index) {
             const data = repairRecords[index];
-            const printWindow = window.open('', '_blank', 'width=450,height=700');
             
-            // ဘောင်ချာ ဒီဇိုင်းပုံစံကို HTML/CSS ဖြင့် တည်ဆောက်ခြင်း
+            // ရက်စွဲပုံစံ ပြင်ဆင်ရန် (YYYY-MM-DD -> DD-MM-YYYY)
+            const dateParts = data.date.split('-');
+            const formattedDate = dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : data.date;
+
+            const printWindow = window.open('', '_blank', 'width=800,height=1000');
+            
             printWindow.document.write(`
                 <html>
                 <head>
                     <title>Print Voucher - ${data.vId}</title>
                     <style>
+                        @page {
+                            size: A5 portrait;
+                            margin: 5mm;
+                        }
                         body { 
                             font-family: 'Segoe UI', Arial, sans-serif, 'Pyidaungsu'; 
-                            padding: 20px; 
-                            color: #333; 
-                            line-height: 1.6;
+                            padding: 10px; 
+                            color: #000; 
                             background-color: #fff;
+                            font-size: 12px;
                         }
-                        .ticket-wrapper { 
-                            max-width: 380px; 
-                            margin: 0 auto; 
-                            text-align: center;
-                            border: 1px solid #ddd;
-                            padding: 15px;
+                        .main-container {
+                            width: 100%;
+                            max-width: 140mm; /* A5 standard width */
+                            margin: 0 auto;
+                        }
+                        
+                        /* 🎫 Top Large Section */
+                        .top-voucher-box {
+                            border: 1px solid #000;
+                            padding: 12px;
+                            position: relative;
                             border-radius: 4px;
+                            min-height: 240px;
                         }
-                        .shop-header { font-size: 24px; font-weight: bold; margin-bottom: 2px; letter-spacing: 1px; }
-                        .shop-contact { font-size: 13px; margin-bottom: 15px; border-bottom: 2px solid #333; padding-bottom: 8px; }
-                        .meta-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 12px; font-weight: 500;}
-                        .info-table { width: 100%; border-collapse: collapse; text-align: left; margin: 15px 0; font-size: 14px; }
-                        .info-table td { padding: 6px 0; vertical-align: top; }
-                        .info-table td.label { font-weight: bold; color: #555; width: 130px; }
-                        .divider { border-top: 1px dashed #999; margin: 10px 0; }
-                        .total-section { 
-                            display: flex; 
-                            justify-content: space-between; 
-                            font-weight: bold; 
-                            font-size: 16px; 
-                            margin-top: 10px; 
-                            border-top: 1px solid #333; 
-                            padding-top: 8px; 
+                        /* Faint watermark background logo matching the style */
+                        .watermark {
+                            position: absolute;
+                            top: 40%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            font-size: 70px;
+                            font-weight: 900;
+                            color: rgba(0, 0, 0, 0.05);
+                            z-index: 0;
+                            letter-spacing: 5px;
                         }
-                        .footer-disclaimer { font-size: 11px; color: #555; margin-top: 25px; line-height: 1.5; font-weight: 500; }
+                        .content-inner {
+                            position: relative;
+                            z-index: 1;
+                        }
+                        .header-table, .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        .header-table td {
+                            vertical-align: top;
+                        }
+                        .info-table td {
+                            padding: 4px 2px;
+                            vertical-align: top;
+                        }
+                        .label-text { font-weight: bold; }
+                        
+                        /* စည်းကမ်းချက်များ */
+                        .terms-box {
+                            margin-top: 12px;
+                            font-size: 10.5px;
+                            line-height: 1.4;
+                            font-weight: 500;
+                        }
+                        .received-sign {
+                            text-align: right;
+                            margin-top: 5px;
+                            font-weight: bold;
+                            font-size: 11px;
+                        }
+
+                        /* ✂️ Divider Line */
+                        .divider {
+                            border-top: 1px dashed #000;
+                            margin: 15px 0;
+                            position: relative;
+                        }
+                        .divider-label {
+                            position: absolute;
+                            top: -8px;
+                            left: 10px;
+                            background: #fff;
+                            padding: 0 5px;
+                            font-size: 11px;
+                            font-weight: bold;
+                        }
+
+                        /* 📊 Bottom Columns Section (Receive) */
+                        .bottom-section-title {
+                            font-weight: bold;
+                            font-size: 13px;
+                            margin-bottom: 5px;
+                        }
+                        .twin-columns {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                        }
+                        .sub-receipt-box {
+                            border: 1px solid #ccc;
+                            padding: 8px;
+                            border-radius: 3px;
+                            font-size: 10.5px;
+                            line-height: 1.4;
+                        }
+                        .sub-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        .sub-table td {
+                            padding: 2px 0;
+                        }
                     </style>
                 </head>
                 <body>
-                    <div class="ticket-wrapper">
-                        <div class="shop-header">JAKE</div>
-                        <div class="shop-contact">Ph: 0979790985</div>
+                    <div class="main-container">
                         
-                        <div class="meta-row">
-                            <div>Voucher: <b>${data.vId}</b></div>
-                            <div>Date: ${data.date}</div>
-                        </div>
+                        <div class="top-voucher-box">
                         
-                        <div class="divider"></div>
-                        
-                        <table class="info-table">
-                            <tr>
-                                <td class="label">Customer Name:</td>
-                                <td>${data.customer}</td>
-                            </tr>
-                            <tr>
-                                <td class="label">Contact Phone:</td>
-                                <td>${data.phone || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td class="label">Phone Model:</td>
-                                <td>${data.model}</td>
-                            </tr>
-                            <tr>
-                                <td class="label">Phone Color:</td>
-                                <td>${data.color}</td>
-                            </tr>
-                            <tr>
-                                <td class="label">Error / Job:</td>
-                                <td>${data.sType}</td>
-                            </tr>
-                            <tr>
-                                <td class="label">Remark:</td>
-                                <td>${data.remark}</td>
-                            </tr>
-                        </table>
-                        
-                        <div class="total-section">
-                            <div>Total Cost:</div>
-                            <div>${Number(data.cost).toLocaleString()} MMK</div>
-                        </div>
-                        
-                        <div class="footer-disclaimer">
-                            ပစ္စည်းအပ်ပြီး (၁)လကျော်ပါက တာဝန်မယူပါ။<br>
-                            ~ လာရောက်အားပေးမှုကို ကျေးဇူးတင်ပါသည် ~
-                        </div>
-                    </div>
-
-                    <script>
-                        // စာမျက်နှာပွင့်လာတာနဲ့ Print Box ကို Auto ခေါ်ပေးမည့်စနစ်
-                        window.onload = function() {
-                            window.print();
-                            setTimeout(function() { window.close(); }, 500);
-                        };
-                    <\/script>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-        }
-
-        updateVoucherIdDisplay();
-    </script>
-</body>
-</html>
