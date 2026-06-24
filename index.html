@@ -13,6 +13,7 @@
             color: #1e293b;
         }
 
+        /* ပင်မ Layout ဖုန်းမှာ အပေါ်အောက်၊ ကွန်ပျူတာမှာ ဘေးချင်းကပ် */
         .main-container {
             display: flex;
             flex-direction: row;
@@ -68,14 +69,7 @@
             font-size: 14px;
         }
 
-        /* ခလုတ်များအတွက် Style */
-        .button-group {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
+        /* မူရင်း Confirm ခလုတ်တစ်ခုတည်းသာ သုံးမည် */
         .btn-confirm {
             background-color: #10b981;
             color: white;
@@ -86,20 +80,8 @@
             font-size: 16px;
             font-weight: bold;
             width: 100%;
+            margin-top: 15px;
             box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
-        }
-
-        .btn-print {
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            width: 100%;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
         }
 
         /* --- Voucher Ticket Style --- */
@@ -171,26 +153,25 @@
             font-weight: bold;
         }
 
-        /* 📱 ဖုန်းမျက်နှာပြင်အတွက် Layout ညှိချက် */
         @media (max-width: 768px) {
             .main-container {
                 flex-direction: column;
             }
         }
 
-        /* 🖨️ ပရင့်ထုတ်မည့်အချိန်တွင် အလုပ်လုပ်မည့် စနစ် */
+        /* 🖨️ ပရင့်ထုတ်တဲ့အချိန် စာရွက်အပြည့်ပေါ်စေရန် ပြင်ဆင်ချက် */
         @media print {
             @page {
                 size: auto;
-                margin: 5mm; /* စာရွက်ဘေးဘောင်များကို သပ်ရပ်စေရန် */
+                margin: 0mm; /* ပရင့်ထုတ်ရင် ဘေးက အပိုစာသားတွေနဲ့ လင့်ခ်တွေ ဖျောက်ပေးရန် */
             }
             body {
                 background: white;
-                padding: 0;
+                padding: 20px;
                 margin: 0;
             }
-            .form-section, .button-group, h2 {
-                display: none !important; /* ပရင့်ထုတ်ရင် Form နဲ့ ခလုတ်တွေ အကုန်ဖျောက်မည် */
+            .form-section, h2 {
+                display: none !important; /* Form ကြီးတစ်ခုလုံးကို ဖျောက်ထားမည် */
             }
             .main-container {
                 display: block;
@@ -200,15 +181,16 @@
             .preview-section {
                 box-shadow: none;
                 padding: 0;
-                display: flex;
-                justify-content: center; /* ဗောက်ချာကို စာရွက်အလယ်တည့်တည့် ပို့ပေးမည် */
+                margin: 0;
+                display: block;
                 width: 100%;
             }
             .voucher-box {
                 border: none;
-                max-width: 100%;
-                width: 100%;
+                width: 100% !important;     /* စာရွက်အကျယ်အတိုင်း ပြည့်သွားစေရန် */
+                max-width: 100% !important; /* Limit မထားတော့ဘဲ အပြည့်ချဲ့ရန် */
                 padding: 10px;
+                box-sizing: border-box;
             }
         }
     </style>
@@ -292,10 +274,7 @@
             <input type="number" id="inputAdvance" value="0">
         </div>
 
-        <div class="button-group">
-            <button class="btn-confirm" id="submitBtn">Voucher အတည်ပြုမည် (Confirm)</button>
-            <button class="btn-print" id="printBtn">🖨️ ဗောက်ချာ ပရင့်ထုတ်မည် (Print)</button>
-        </div>
+        <button class="btn-confirm" id="submitBtn">Voucher အတည်ပြုမည် (Confirm)</button>
     </div>
 
     <div class="preview-section">
@@ -399,27 +378,21 @@
         document.getElementById('vBalance').innerText = balance.toLocaleString() + ' MMK';
     }
 
-    // Live Preview စနစ် (စာရိုက်တာနဲ့ အောက်မှာ တန်းပြောင်းလဲစေရန်)
+    // Live Preview စနစ်
     const inputs = document.querySelectorAll('input, select');
     inputs.forEach(input => {
         input.addEventListener('input', updateVoucher);
     });
 
-    // ယနေ့ရက်စွဲ သတ်မှတ်ချက်
+    // ယနေ့ရက်စွဲကို Auto ဖြည့်ပေးခြင်း
     const today = new Date();
     document.getElementById('inputDate').value = today.toISOString().split('T')[0];
     updateVoucher();
 
-    // Confirm ခလုတ် - အချက်အလက်များကို အတည်ပြုရုံသာ လုပ်ဆောင်မည်
+    // Confirm နှိပ်တာနဲ့ ဗောက်ချာကို အပ်ဒိတ်လုပ်ပြီး ပရင့်စနစ် တန်းပွင့်လာစေရန်
     document.getElementById('submitBtn').addEventListener('click', function() {
-        updateVoucher();
-        alert('ဗောက်ချာ အချက်အလက်များကို အတည်ပြုပြီးပါပြီ။ Preview တွင် စစ်ဆေးနိုင်ပါသည်။');
-    });
-
-    // Print ခလုတ် - ပရင့်ထုတ်မည့် စနစ်ကို တိုက်ရိုက်ခေါ်ယူမည်
-    document.getElementById('printBtn').addEventListener('click', function() {
-        updateVoucher();
-        window.print();
+        updateVoucher(); 
+        window.print(); // ဖုန်း သို့မဟုတ် ကွန်ပျူတာ၏ Print စနစ်ကို တိုက်ရိုက် ခေါ်ယူခြင်း
     });
 </script>
 
