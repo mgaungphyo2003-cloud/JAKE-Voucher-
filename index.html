@@ -25,7 +25,6 @@
             padding-bottom: 60px;
         }
 
-        /* Form Styling */
         .form-section {
             background: white;
             padding: 20px;
@@ -86,7 +85,7 @@
             background-color: #059669;
         }
 
-        /* --- ဘယ်ဘက်ဘေးကပ်လျက် Sidebar History --- */
+        /* --- Sidebar History --- */
         .sidebar-toggle-btn {
             position: fixed;
             left: 0;
@@ -94,7 +93,7 @@
             background: var(--dark-bg);
             color: white;
             border: none;
-            padding: 12px 6px;
+            padding: 12px 8px;
             border-radius: 0 8px 8px 0;
             cursor: pointer;
             z-index: 999;
@@ -292,7 +291,6 @@
             flex: 1;
         }
 
-        /* Print Media Query */
         @media print {
             body {
                 background: white;
@@ -324,23 +322,18 @@
 </head>
 <body>
 
-<!-- ဘယ်ဘက်ဘေးကပ်လျက် နှိပ်ကြည့်ရန်ခလုတ် -->
 <button class="sidebar-toggle-btn" onclick="toggleSidebar(true)">
     <span>📜</span><span>မှ</span><span>တ်</span><span>တ</span><span>မ်း</span>
 </button>
 
-<!-- Black Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
 
-<!-- ဘယ်ဘက်ခြမ်း Sidebar Panel -->
 <div class="sidebar-history" id="sidebarHistory">
     <div class="sidebar-header">
         <h3 style="margin: 0; font-size: 15px;">Voucher မှတ်တမ်းများ</h3>
         <span onclick="toggleSidebar(false)" style="cursor: pointer; font-size: 20px; font-weight: bold;">&times;</span>
     </div>
-    <div class="sidebar-content" id="historyContainer">
-        <!-- မှတ်တမ်းများ -->
-    </div>
+    <div class="sidebar-content" id="historyContainer"></div>
 </div>
 
 <div class="container">
@@ -421,11 +414,10 @@
             <input type="number" id="inputAdvance" value="0">
         </div>
 
-        <button class="btn-confirm" onclick="openConfirmModal()">Voucher အတည်ပြုမည် (Confirm)</button>
+        <button class="btn-confirm" id="submitBtn">Voucher အတည်ပြုမည် (Confirm)</button>
     </div>
 </div>
 
-<!-- Voucher Preview Modal -->
 <div class="modal" id="voucherModal">
     <div class="modal-content">
         <div class="voucher-box" id="printArea">
@@ -496,12 +488,7 @@
 </div>
 
 <script>
-    // ရက်စွဲသတ်မှတ်ချက်
-    try {
-        const today = new Date();
-        document.getElementById('inputDate').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    } catch(e) { console.log(e); }
-
+    // လုံခြုံစိတ်ချရသော နေ့စွဲဖော်မတ်လုပ်ဆောင်ချက်
     function formatDate(dateString) {
         if(!dateString) return '-';
         try {
@@ -509,96 +496,114 @@
             return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
         } catch(e) { return dateString; }
     }
-    
-    const savedVoucherNo = localStorage.getItem('jakeCurrentVoucherNo') || 'V-1001';
-    if(document.getElementById('inputVoucherNo')) {
-        document.getElementById('inputVoucherNo').value = savedVoucherNo;
-    }
-
-    // စိတ်ချရသော အနေအထားဖြင့် History ပြသခြင်း
-    displayHistory();
 
     function toggleSidebar(open) {
-        document.getElementById('sidebarHistory').classList.toggle('open', open);
-        document.getElementById('sidebarOverlay').classList.toggle('show', open);
+        const sb = document.getElementById('sidebarHistory');
+        const ol = document.getElementById('sidebarOverlay');
+        if(sb) sb.classList.toggle('open', open);
+        if(ol) ol.classList.toggle('show', open);
     }
 
+    function closeModal() {
+        const modal = document.getElementById('voucherModal');
+        if(modal) modal.style.display = 'none';
+    }
+
+    // စိတ်ချရဆုံးဖြစ်အောင် တိုက်ရိုက်ခေါ်ယူမည့် စနစ်
     function openConfirmModal() {
         try {
-            document.getElementById('vShopName').innerText = document.getElementById('inputShopName').value || 'JAKE';
-            document.getElementById('vShopContact').innerText = document.getElementById('inputShopContact').value || '';
-            document.getElementById('vVoucherNo').innerText = document.getElementById('inputVoucherNo').value || '-';
-            document.getElementById('vCustomer').innerText = document.getElementById('inputCustomer').value || '-';
-            document.getElementById('vPhone').innerText = document.getElementById('inputPhone').value || '-';
-            document.getElementById('vModel').innerText = document.getElementById('inputModel').value || '-';
-            document.getElementById('vColor').innerText = document.getElementById('inputColor').value || '-';
-            document.getElementById('vError').innerText = document.getElementById('inputError').value || '-';
-            document.getElementById('vSimMem').innerText = document.getElementById('inputSimMem').value || 'မပါ (None)';
-            document.getElementById('vDate').innerText = formatDate(document.getElementById('inputDate').value);
+            const getValue = (id, fallback = '-') => {
+                const el = document.getElementById(id);
+                return el ? (el.value || fallback) : fallback;
+            };
 
-            const status = document.getElementById('inputStatus').value || 'ပြင်ဆင်ဆဲ (Pending)';
+            document.getElementById('vShopName').innerText = getValue('inputShopName', 'JAKE');
+            document.getElementById('vShopContact').innerText = getValue('inputShopContact', '');
+            document.getElementById('vVoucherNo').innerText = getValue('inputVoucherNo', '-');
+            document.getElementById('vCustomer').innerText = getValue('inputCustomer', '-');
+            document.getElementById('vPhone').innerText = getValue('inputPhone', '-');
+            document.getElementById('vModel').innerText = getValue('inputModel', '-');
+            document.getElementById('vColor').innerText = getValue('inputColor', '-');
+            document.getElementById('vError').innerText = getValue('inputError', '-');
+            document.getElementById('vSimMem').innerText = getValue('inputSimMem', 'မပါ (None)');
+            document.getElementById('vDate').innerText = formatDate(getValue('inputDate', ''));
+
+            const status = getValue('inputStatus', 'ပြင်ဆင်ဆဲ (Pending)');
             const vStatus = document.getElementById('vStatus');
-            vStatus.innerText = status;
-            
-            if(status.includes('Pending')) vStatus.style.color = '#d97706';
-            else if(status.includes('Done')) vStatus.style.color = '#16a34a';
-            else vStatus.style.color = '#2563eb';
+            if(vStatus) {
+                vStatus.innerText = status;
+                if(status.includes('Pending')) vStatus.style.color = '#d97706';
+                else if(status.includes('Done')) vStatus.style.color = '#16a34a';
+                else vStatus.style.color = '#2563eb';
+            }
 
-            const cost = parseFloat(document.getElementById('inputCost').value) || 0;
-            const advance = parseFloat(document.getElementById('inputAdvance').value) || 0;
+            const cost = parseFloat(getValue('inputCost', '0')) || 0;
+            const advance = parseFloat(getValue('inputAdvance', '0')) || 0;
             const balance = cost - advance;
 
             document.getElementById('vCost').innerText = cost.toLocaleString() + ' MMK';
             document.getElementById('vAdvance').innerText = advance.toLocaleString() + ' MMK';
             document.getElementById('vBalance').innerText = balance.toLocaleString() + ' MMK';
 
-            // Modal ဖွင့်ရန်
-            document.getElementById('voucherModal').style.display = 'block';
+            const modal = document.getElementById('voucherModal');
+            if(modal) {
+                modal.style.display = 'block';
+            } else {
+                alert("Voucher မျက်နှာပြင်ပြသရန် Error ရှိနေပါသည်။");
+            }
         } catch (error) {
-            alert("စနစ်အတွင်း အမှားတစ်ခုရှိနေပါသည်- " + error.message);
+            alert("အချက်အလက်များကို ဆွဲယူရာတွင် အမှားရှိနေပါသည်: " + error.message);
         }
     }
 
-    function closeModal() {
-        document.getElementById('voucherModal').style.display = 'none';
-    }
-
     function printAndSaveVoucher() {
-        const voucherNo = document.getElementById('inputVoucherNo').value || '-';
-        const customer = document.getElementById('inputCustomer').value || '-';
-        const phone = document.getElementById('inputPhone').value || '-';
-        const model = document.getElementById('inputModel').value || '-';
-        const color = document.getElementById('inputColor').value || '-';
-        const error = document.getElementById('inputError').value || '-';
-        const simMem = document.getElementById('inputSimMem').value || 'မပါ (None)';
-        const dateFormatted = formatDate(document.getElementById('inputDate').value);
-        const status = document.getElementById('inputStatus').value || 'ပြင်ဆင်ဆဲ (Pending)';
-        const cost = parseFloat(document.getElementById('inputCost').value) || 0;
-        const advance = parseFloat(document.getElementById('inputAdvance').value) || 0;
-        const balance = cost - advance;
-
-        const newVoucher = {
-            voucherNo, customer, phone, model, color, error, simMem,
-            dateFormatted, status, cost, advance, balance
-        };
-
-        let history = [];
         try {
-            history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
-        } catch(e) { history = []; }
-        
-        history.unshift(newVoucher);
-        localStorage.setItem('jakeVoucherHistory', JSON.stringify(history));
+            const getValue = (id, fallback = '-') => {
+                const el = document.getElementById(id);
+                return el ? (el.value || fallback) : fallback;
+            };
 
-        displayHistory();
+            const voucherNo = getValue('inputVoucherNo');
+            const customer = getValue('inputCustomer');
+            const phone = getValue('inputPhone');
+            const model = getValue('inputModel');
+            const color = getValue('inputColor');
+            const error = getValue('inputError');
+            const simMem = getValue('inputSimMem');
+            const dateFormatted = formatDate(getValue('inputDate'));
+            const status = getValue('inputStatus');
+            
+            const cost = parseFloat(getValue('inputCost', '0')) || 0;
+            const advance = parseFloat(getValue('inputAdvance', '0')) || 0;
+            const balance = cost - advance;
 
-        let numberPart = parseInt(voucherNo.replace(/[^0-9]/g, '')) || 1001;
-        let nextVNo = 'V-' + (numberPart + 1);
-        document.getElementById('inputVoucherNo').value = nextVNo;
-        localStorage.setItem('jakeCurrentVoucherNo', nextVNo);
+            const newVoucher = {
+                voucherNo, customer, phone, model, color, error, simMem,
+                dateFormatted, status, cost, advance, balance
+            };
 
-        window.print();
-        closeModal();
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
+                if(!Array.isArray(history)) history = [];
+            } catch(e) { history = []; }
+            
+            history.unshift(newVoucher);
+            localStorage.setItem('jakeVoucherHistory', JSON.stringify(history));
+
+            displayHistory();
+
+            let numberPart = parseInt(voucherNo.replace(/[^0-9]/g, '')) || 1001;
+            let nextVNo = 'V-' + (numberPart + 1);
+            const vInput = document.getElementById('inputVoucherNo');
+            if(vInput) vInput.value = nextVNo;
+            localStorage.setItem('jakeCurrentVoucherNo', nextVNo);
+
+            window.print();
+            closeModal();
+        } catch(err) {
+            alert("သိမ်းဆည်းရာတွင် အမှားရှိပါသည်: " + err.message);
+        }
     }
 
     function displayHistory() {
@@ -607,4 +612,9 @@
 
         let history = [];
         try {
-            history = JSON.parse(localStorage.g
+            history = JSON.parse(localStorage.getItem('jakeVoucherHistory')) || [];
+            if(!Array.isArray(history)) history = [];
+        } catch(e) { history = []; }
+        
+        if (history.length === 0) {
+            container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px;">မှတ်တမ်းမရှိသ
