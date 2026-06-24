@@ -14,7 +14,7 @@
             display: flex;
         }
 
-        /* 📊 Sidebar Styles (ဘယ်ဘက် Menu အတန်း) */
+        /* 📊 Sidebar Styles */
         .sidebar {
             width: 260px;
             background-color: #1a2226;
@@ -55,7 +55,6 @@
             color: #fff;
         }
 
-        /* Active Menu */
         .sidebar-menu li.active a {
             background-color: #1e282c;
             color: #fff;
@@ -70,7 +69,7 @@
             text-align: center;
         }
 
-        /* 🏢 Main Content Area (ညာဘက် အပိုင်းတစ်ခုလုံး) */
+        /* 🏢 Main Content Area */
         .main-content {
             flex-grow: 1;
             display: flex;
@@ -169,7 +168,7 @@
             background-color: #008d4c;
         }
 
-        /* 📊 Footer Dashboard List (ယနေ့လာအပ်ဖုန်းစာရင်း ဇယားကွက်) */
+        /* 📊 Daily Table & Summary */
         .dashboard-summary {
             margin-top: 30px;
             text-align: left;
@@ -207,11 +206,24 @@
             border-bottom: 1px solid #eeeeeef2;
         }
 
-        .list-table tr:last-child td {
-            border-bottom: none;
+        /* 🖨️ Print Button Style */
+        .btn-print {
+            background-color: #0073b7;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background 0.2s;
         }
 
-        /* 📱 Responsive Screen */
+        .btn-print:hover {
+            background-color: #005a91;
+        }
+
+        /* 📱 Responsive */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -339,10 +351,10 @@
                                 <th>Device Model</th>
                                 <th>Phone Color</th>
                                 <th>ကုန်ကျငွေ</th>
-                            </tr>
+                                <th>လုပ်ဆောင်ချက်</th> </tr>
                         </thead>
                         <tbody id="phoneListBody">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
 
@@ -351,20 +363,18 @@
     </div>
 
     <script>
-        // စာရင်းတွက်ချက်ရန် Variable များ
-        let phoneCount = 0;
+        // ဒေတာများကို ယာယီသိမ်းဆည်းထားမည့် Array 
+        let repairRecords = [];
         let currentVoucherNum = 1;
 
-        // Voucher ID ကို AE-01, AE-02 ပုံစံဖြင့် ပြောင်းလဲပေးသည့် Function
         function updateVoucherIdDisplay() {
             document.getElementById('voucherId').value = "AE-" + String(currentVoucherNum).padStart(2, '0');
         }
 
-        // ယနေ့ရက်စွဲကို Auto ဖြည့်ပေးရန်
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('repairDate').value = today;
 
-        // Register ခလုတ်နှိပ်သည့်အခါ အောက်ကဇယားထဲ စာရင်းထည့်သွင်းပေးမည့်စနစ်
+        // Register စနစ်
         document.getElementById('registerBtn').addEventListener('click', function() {
             const vId = document.getElementById('voucherId').value;
             const customer = document.getElementById('customerName').value;
@@ -372,14 +382,20 @@
             const model = document.getElementById('deviceModel').value;
             const color = document.getElementById('phoneColor').value || '-';
             const cost = document.getElementById('estimatedCost').value || '0';
+            const sType = document.getElementById('serviceType').value || document.getElementById('serviceGroup').value || '-';
+            const date = document.getElementById('repairDate').value;
+            const remark = document.getElementById('remarkDetail').value || '-';
 
-            // မဖြစ်မနေလိုအပ်သော Field များ စစ်ဆေးခြင်း
             if(!customer || !model) {
                 alert('ကျေးဇူးပြု၍ Customer Name နှင့် Device Model ကို ဖြည့်စွက်ပေးပါဗျာ။');
                 return;
             }
 
-            // ဇယားကွက်ထဲသို့ Row အသစ် တိုးမြှင့်ထည့်သွင်းခြင်း
+            // Object အဖြစ် Record ထဲ သိမ်းဆည်းခြင်း
+            const recordIndex = repairRecords.length;
+            repairRecords.push({ vId, customer, phone, model, color, cost, sType, date, remark });
+
+            // ဇယားထဲ စာရင်းသွင်းခြင်း (Print ခလုတ်ကိုပါ တစ်ပါတည်းထည့်သွင်း)
             const tbody = document.getElementById('phoneListBody');
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -388,14 +404,13 @@
                 <td>${model}</td>
                 <td>${color}</td>
                 <td style="color: #00a65a; font-weight: bold;">${Number(cost).toLocaleString()} MMK</td>
+                <td><button class="btn-print" onclick="printVoucher(${recordIndex})">Print</button></td>
             `;
             tbody.appendChild(row);
 
-            // အရေအတွက်ကို တိုးမြှင့်ခြင်း
-            phoneCount++;
-            document.getElementById('todayCountText').innerText = `ယနေ့လာအပ် ဖုန်းစာရင်း (${phoneCount}) လုံး`;
+            document.getElementById('todayCountText').innerText = `ယနေ့လာအပ် ဖုန်းစာရင်း (${repairRecords.length}) လုံး`;
 
-            // နောက်တစ်ကြိမ် ဖုန်းအသစ်ထည့်ရလွယ်ကူစေရန် လက်ရှိ Form ပါ အကွက်များကို ရှင်းလင်းပေးခြင်း
+            // Form ရှင်းလင်းခြင်း
             document.getElementById('customerName').value = '';
             document.getElementById('customerPhone').value = '';
             document.getElementById('deviceModel').value = '';
@@ -403,14 +418,120 @@
             document.getElementById('estimatedCost').value = '0';
             document.getElementById('remarkDetail').value = '';
 
-            // Voucher ID ကို AE-02, AE-03 စသည်ဖြင့် Auto တစ်ဆင့်တိုးပေးခြင်း
             currentVoucherNum++;
             updateVoucherIdDisplay();
 
             alert('ဆားဗစ်အချက်အလက်ကို စာရင်းထဲသို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ ခင်ဗျာ။');
         });
 
-        // စတင်ချိန်တွင် Voucher ID ကို Initial လုပ်ပေးထားခြင်း
+        // 🖨️ ချက်ချင်း Voucher Slip ထုတ်ပေးမည့် Print Function
+        function printVoucher(index) {
+            const data = repairRecords[index];
+            const printWindow = window.open('', '_blank', 'width=450,height=700');
+            
+            // ဘောင်ချာ ဒီဇိုင်းပုံစံကို HTML/CSS ဖြင့် တည်ဆောက်ခြင်း
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print Voucher - ${data.vId}</title>
+                    <style>
+                        body { 
+                            font-family: 'Segoe UI', Arial, sans-serif, 'Pyidaungsu'; 
+                            padding: 20px; 
+                            color: #333; 
+                            line-height: 1.6;
+                            background-color: #fff;
+                        }
+                        .ticket-wrapper { 
+                            max-width: 380px; 
+                            margin: 0 auto; 
+                            text-align: center;
+                            border: 1px solid #ddd;
+                            padding: 15px;
+                            border-radius: 4px;
+                        }
+                        .shop-header { font-size: 24px; font-weight: bold; margin-bottom: 2px; letter-spacing: 1px; }
+                        .shop-contact { font-size: 13px; margin-bottom: 15px; border-bottom: 2px solid #333; padding-bottom: 8px; }
+                        .meta-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 12px; font-weight: 500;}
+                        .info-table { width: 100%; border-collapse: collapse; text-align: left; margin: 15px 0; font-size: 14px; }
+                        .info-table td { padding: 6px 0; vertical-align: top; }
+                        .info-table td.label { font-weight: bold; color: #555; width: 130px; }
+                        .divider { border-top: 1px dashed #999; margin: 10px 0; }
+                        .total-section { 
+                            display: flex; 
+                            justify-content: space-between; 
+                            font-weight: bold; 
+                            font-size: 16px; 
+                            margin-top: 10px; 
+                            border-top: 1px solid #333; 
+                            padding-top: 8px; 
+                        }
+                        .footer-disclaimer { font-size: 11px; color: #555; margin-top: 25px; line-height: 1.5; font-weight: 500; }
+                    </style>
+                </head>
+                <body>
+                    <div class="ticket-wrapper">
+                        <div class="shop-header">JAKE</div>
+                        <div class="shop-contact">Ph: 0979790985</div>
+                        
+                        <div class="meta-row">
+                            <div>Voucher: <b>${data.vId}</b></div>
+                            <div>Date: ${data.date}</div>
+                        </div>
+                        
+                        <div class="divider"></div>
+                        
+                        <table class="info-table">
+                            <tr>
+                                <td class="label">Customer Name:</td>
+                                <td>${data.customer}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Contact Phone:</td>
+                                <td>${data.phone || '-'}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Phone Model:</td>
+                                <td>${data.model}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Phone Color:</td>
+                                <td>${data.color}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Error / Job:</td>
+                                <td>${data.sType}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Remark:</td>
+                                <td>${data.remark}</td>
+                            </tr>
+                        </table>
+                        
+                        <div class="total-section">
+                            <div>Total Cost:</div>
+                            <div>${Number(data.cost).toLocaleString()} MMK</div>
+                        </div>
+                        
+                        <div class="footer-disclaimer">
+                            ပစ္စည်းအပ်ပြီး (၁)လကျော်ပါက တာဝန်မယူပါ။<br>
+                            ~ လာရောက်အားပေးမှုကို ကျေးဇူးတင်ပါသည် ~
+                        </div>
+                    </div>
+
+                    <script>
+                        // စာမျက်နှာပွင့်လာတာနဲ့ Print Box ကို Auto ခေါ်ပေးမည့်စနစ်
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() { window.close(); }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
         updateVoucherIdDisplay();
     </script>
 </body>
