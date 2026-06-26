@@ -11,6 +11,36 @@
             margin: 0;
             padding: 0;
             color: #333;
+        }
+
+        /* 🔐 Login Page Styles */
+        .login-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #ecf0f5;
+        }
+
+        .login-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            border-top: 4px solid #3c8dbc;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            margin-bottom: 20px;
+            color: #222d32;
+            font-size: 22px;
+        }
+
+        /* 🏢 Main App Layout */
+        .app-container {
             display: flex;
         }
 
@@ -48,6 +78,7 @@
             text-decoration: none;
             font-size: 14px;
             border-left: 3px solid transparent;
+            cursor: pointer;
         }
 
         .sidebar-menu li a:hover {
@@ -95,6 +126,22 @@
             font-size: 16px;
         }
 
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            background-color: #dd4b39;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
         /* 📝 Form Wrapper & Containers */
         .container {
             padding: 20px;
@@ -121,6 +168,7 @@
         .form-group {
             display: flex;
             flex-direction: column;
+            margin-bottom: 12px;
         }
 
         label {
@@ -131,6 +179,7 @@
         }
 
         input[type="text"],
+        input[type="password"],
         input[type="number"],
         input[type="date"],
         select,
@@ -149,7 +198,7 @@
             outline: none;
         }
 
-        /* 🟢 Register Button */
+        /* 🟢 Buttons */
         .btn-register {
             background-color: #00a65a;
             color: white;
@@ -164,9 +213,19 @@
             transition: background 0.2s;
         }
 
-        .btn-register:hover {
-            background-color: #008d4c;
+        .btn-register:hover { background-color: #008d4c; }
+
+        .btn-blue {
+            background-color: #3c8dbc;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
         }
+        .btn-blue:hover { background-color: #286090; }
 
         /* 📊 Daily Table & Summary */
         .dashboard-summary {
@@ -206,7 +265,6 @@
             border-bottom: 1px solid #eeeeeef2;
         }
 
-        /* 🖨️ Print Button Style */
         .btn-print {
             background-color: #0073b7;
             color: white;
@@ -218,198 +276,378 @@
             font-weight: bold;
             transition: background 0.2s;
         }
+        .btn-print:hover { background-color: #005a91; }
 
-        .btn-print:hover {
-            background-color: #005a91;
-        }
+        /* Tabs Visibility */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         /* 📱 Responsive */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-            .sidebar {
-                width: 100%;
-                min-height: auto;
-            }
+            .app-container { flex-direction: column; }
+            .sidebar { width: 100%; min-height: auto; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="sidebar-brand">🔧 REPAIR ADMIN</div>
-        <ul class="sidebar-menu">
-            <li class="active"><a href="#"><span class="icon">📝</span> ဆားဗစ်လက်ခံမည်</a></li>
-            <li><a href="#"><span class="icon">🔍</span> ဖုန်းရှာမည်</a></li>
-            <li><a href="#"><span class="icon">🔒</span> Password ပြောင်းရန်</a></li>
-        </ul>
+    <div id="loginContainer" class="login-wrapper">
+        <div class="login-card">
+            <h2>REPAIR ADMIN LOGIN</h2>
+            <div class="form-group" style="text-align: left;">
+                <label>Username</label>
+                <input type="text" id="loginUser" placeholder="Username ထည့်ပါ">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label>Password</label>
+                <input type="password" id="loginPass" placeholder="Password ထည့်ပါ">
+            </div>
+            <button type="button" class="btn-register" id="loginBtn" style="margin-top: 5px;">ဝင်ရောက်မည်</button>
+        </div>
     </div>
 
-    <div class="main-content">
+    <div id="appContainer" class="app-container" style="display: none;">
         
-        <div class="navbar">
-            <div class="navbar-left">
-                <span>ဆားဗစ်အချက်အလက်များ ထည့်သွင်းခြင်း</span>
-            </div>
-            <div class="navbar-right">
-                <span>Admin 👤</span>
-            </div>
+        <div class="sidebar">
+            <div class="sidebar-brand">🔧 REPAIR ADMIN</div>
+            <ul class="sidebar-menu">
+                <li id="menuReceive" class="active"><a onclick="switchTab('receive')"><span class="icon">📝</span> ဆားဗစ်လက်ခံမည်</a></li>
+                <li id="menuPassword"><a onclick="switchTab('password')"><span class="icon">🔒</span> Password ပြောင်းရန်</a></li>
+            </ul>
         </div>
 
-        <div class="container">
-            <div class="form-card">
-                <form id="serviceForm">
-                    <div class="form-grid">
+        <div class="main-content">
+            
+            <div class="navbar">
+                <div class="navbar-left">
+                    <span id="navbarTitle">ဆားဗစ်အချက်အလက်များ ထည့်သွင်းခြင်း</span>
+                </div>
+                <div class="navbar-right">
+                    <span style="font-weight: bold; color: #444;">User: <span id="currentAdminName" style="color:#3c8dbc;">Admin</span> 👤</span>
+                    <button class="btn-logout" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+
+            <div id="tabReceive" class="container tab-content active">
+                <div class="form-card">
+                    <form id="serviceForm">
+                        <div class="form-grid">
+                            
+                            <div class="form-group">
+                                <label>Voucher ID</label>
+                                <input type="text" id="voucherId" readonly style="background-color: #eee; font-weight: bold; color: #3c8dbc;">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Device Type</label>
+                                <select id="deviceType">
+                                    <option value="Phone">Phone</option>
+                                    <option value="Tablet">Tablet</option>
+                                    <option value="Laptop">Laptop</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Service Group</label>
+                                <select id="serviceGroup">
+                                    <option value="">Select Service Group</option>
+                                    <option value="Hardware">Hardware (အပိုပစ္စည်းလဲလှယ်ခြင်း)</option>
+                                    <option value="Software">Software (ဆော့ဖ်ဝဲလ်ပိုင်း)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Service Type</label>
+                                <select id="serviceType">
+                                    <option value="">Select Service Type</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>IMEI No.</label>
+                                <input type="text" id="imeiNo" placeholder="Enter IMEI Number">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Customer Name</label>
+                                <input type="text" id="customerName" placeholder="Customer နာမည်ထည့်ရန်">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Customer Phone Number</label>
+                                <input type="text" id="customerPhone" placeholder="Customer ဖုန်းနံပါတ်">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Device Model</label>
+                                <input type="text" id="deviceModel" placeholder="ဥပမာ - Redmi Note 13 / Vivo Y91">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Phone Color</label>
+                                <input type="text" id="phoneColor" placeholder="ဖုန်းအရောင်">
+                            </div>
+
+                            <div class="form-group">
+                                <label>ခန့်မှန်းကုန်ကျငွေ</label>
+                                <input type="number" id="estimatedCost" value="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label>ပြင်ရက်စွဲ</label>
+                                <input type="date" id="repairDate">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Remark</label>
+                                <textarea id="remarkDetail" rows="3" placeholder="မှတ်ချက်များ..."></textarea>
+                            </div>
+
+                        </div>
+
+                        <button type="button" class="btn-register" id="registerBtn">register</button>
+                    </form>
+
+                    <div class="dashboard-summary">
+                        <div class="summary-title" id="todayCountText">ယနေ့လာအပ် ဖုန်းစာရင်း (0) လုံး</div>
                         
-                        <div class="form-group">
-                            <label>Voucher ID</label>
-                            <input type="text" id="voucherId" value="AE-01" readonly style="background-color: #eee; font-weight: bold; color: #3c8dbc;">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Device Type</label>
-                            <select id="deviceType">
-                                <option value="Phone">Phone</option>
-                                <option value="Tablet">Tablet</option>
-                                <option value="Laptop">Laptop</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Service Group</label>
-                            <select id="serviceGroup">
-                                <option value="">Select Service Group</option>
-                                <option value="Hardware">Hardware (အပိုပစ္စည်းလဲလှယ်ခြင်း)</option>
-                                <option value="Software">Software (ဆော့ဖ်ဝဲလ်ပိုင်း)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Service Type</label>
-                            <select id="serviceType">
-                                <option value="">Select Service Type</option>
-                                <option value="Display">LCD / Display</option>
-                                <option value="Battery">Battery Change</option>
-                                <option value="CPU">CPU / IC Repair</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>IMEI No.</label>
-                            <input type="text" id="imeiNo" placeholder="Enter IMEI Number">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Customer Name</label>
-                            <input type="text" id="customerName" placeholder="Customer နာမည်ထည့်ရန်">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Customer Phone Number</label>
-                            <input type="text" id="customerPhone" placeholder="Customer ဖုန်းနံပါတ်">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Device Model</label>
-                            <input type="text" id="deviceModel" placeholder="ဥပမာ - Redmi Note 13 / Vivo Y91">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Phone Color</label>
-                            <input type="text" id="phoneColor" placeholder="ဖုန်းအရောင်">
-                        </div>
-
-                        <div class="form-group">
-                            <label>ခန့်မှန်းကုန်ကျငွေ</label>
-                            <input type="number" id="estimatedCost" value="0">
-                        </div>
-
-                        <div class="form-group">
-                            <label>ပြင်ရက်စွဲ</label>
-                            <input type="date" id="repairDate">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Remark</label>
-                            <textarea id="remarkDetail" rows="3" placeholder="မှတ်ချက်များ..."></textarea>
-                        </div>
-
+                        <table class="list-table">
+                            <thead>
+                                <tr>
+                                    <th>Voucher ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Device Model</th>
+                                    <th>Phone Color</th>
+                                    <th>ကုန်ကျငွေ</th>
+                                    <th>လုပ်ဆောင်ချက်</th>
+                                </tr>
+                            </thead>
+                            <tbody id="phoneListBody">
+                            </tbody>
+                        </table>
                     </div>
 
-                    <button type="button" class="btn-register" id="registerBtn">register</button>
-                </form>
-
-                <div class="dashboard-summary">
-                    <div class="summary-title" id="todayCountText">ယနေ့လာအပ် ဖုန်းစာရင်း (0) လုံး</div>
-                    
-                    <table class="list-table">
-                        <thead>
-                            <tr>
-                                <th>Voucher ID</th>
-                                <th>Customer Name</th>
-                                <th>Device Model</th>
-                                <th>Phone Color</th>
-                                <th>ကုန်ကျငွေ</th>
-                                <th>လုပ်ဆောင်ချက်</th>
-                            </tr>
-                        </thead>
-                        <tbody id="phoneListBody">
-                        </tbody>
-                    </table>
                 </div>
-
             </div>
+
+            <div id="tabPassword" class="container tab-content">
+                <div class="form-card" style="max-width: 500px; margin: 0 auto; border-top-color: #f39c12;">
+                    <h3 style="margin-top: 0; color: #222d32;">အကောင့်အချက်အလက် ပြောင်းလဲရန်</h3>
+                    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+                    
+                    <div class="form-group">
+                        <label>အကောင့်နာမည်အသစ် (New Username)</label>
+                        <input type="text" id="newUsername" placeholder="အကောင့်နာမည်အသစ် ထည့်ရန်">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>စကားဝှက်အသစ် (New Password)</label>
+                        <input type="password" id="newPassword" placeholder="စကားဝှက်အသစ် ထည့်ရန်">
+                    </div>
+
+                    <div class="form-group">
+                        <label>စကားဝှက်ကို ထပ်မံရိုက်ထည့်ပါ (Confirm Password)</label>
+                        <input type="password" id="confirmPassword" placeholder="စကားဝှက်ကို ထပ်မံရိုက်ထည့်ပါ">
+                    </div>
+
+                    <button type="button" class="btn-register" id="updateAuthBtn" style="background-color: #f39c12;">အချက်အလက်များ သိမ်းဆည်းမည်</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        let repairRecords = [];
+        // 🔐 အကောင့် Login / Auth System Logic
+        if (!localStorage.getItem('adminUser')) {
+            localStorage.setItem('adminUser', 'admin');
+            localStorage.setItem('adminPass', '123456');
+        }
+
+        // Login အခြေအနေ စစ်ဆေးခြင်း
+        function checkLoginStatus() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            if (isLoggedIn === 'true') {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'flex';
+                document.getElementById('currentAdminName').innerText = localStorage.getItem('adminUser');
+                document.getElementById('newUsername').value = localStorage.getItem('adminUser');
+            } else {
+                document.getElementById('loginContainer').style.display = 'flex';
+                document.getElementById('appContainer').style.display = 'none';
+            }
+        }
+
+        // Login ခလုတ်နှိပ်ခြင်း
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const userIn = document.getElementById('loginUser').value.trim();
+            const passIn = document.getElementById('loginPass').value.trim();
+            
+            const savedUser = localStorage.getItem('adminUser');
+            const savedPass = localStorage.getItem('adminPass');
+
+            if (userIn === savedUser && passIn === savedPass) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                checkLoginStatus();
+                // Form တွေ ရှင်းထုတ်မည်
+                document.getElementById('loginUser').value = '';
+                document.getElementById('loginPass').value = '';
+            } else {
+                alert('Username သို့မဟုတ် Password မှားယွင်းနေပါတယ် ခင်ဗျာ။');
+            }
+        });
+
+        // Logout ခလုတ်နှိပ်ခြင်း
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            sessionStorage.removeItem('isLoggedIn');
+            checkLoginStatus();
+        });
+
+        // Password & Username ပြောင်းလဲခြင်း စနစ်
+        document.getElementById('updateAuthBtn').addEventListener('click', function() {
+            const newU = document.getElementById('newUsername').value.trim();
+            const newP = document.getElementById('newPassword').value.trim();
+            const confP = document.getElementById('confirmPassword').value.trim();
+
+            if (!newU) {
+                alert('ကျေးဇူးပြု၍ Username ဖြည့်စွက်ပေးပါ။');
+                return;
+            }
+
+            if (newP !== confP) {
+                alert('စကားဝှက်နှစ်ခု ကိုက်ညီမှု မရှိပါဘူး ခင်ဗျာ။');
+                return;
+            }
+
+            localStorage.setItem('adminUser', newU);
+            if (newP) {
+                localStorage.setItem('adminPass', newP);
+            }
+
+            document.getElementById('currentAdminName').innerText = newU;
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            alert('အကောင့်အချက်အလက် ပြောင်းလဲခြင်း အောင်မြင်ပါသည်။');
+            switchTab('receive'); // ပြောင်းပြီးရင် Main Form ကို ပြန်ပို့ပေးမည်
+        });
+
+        // 🔄 Tab Switching (ဆားဗစ်လက်ခံ / Password ပြောင်း)
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+
+            if (tabName === 'receive') {
+                document.getElementById('tabReceive').classList.add('active');
+                document.getElementById('menuReceive').classList.add('active');
+                document.getElementById('navbarTitle').innerText = 'ဆားဗစ်အချက်အလက်များ ထည့်သွင်းခြင်း';
+            } else if (tabName === 'password') {
+                document.getElementById('tabPassword').classList.add('active');
+                document.getElementById('menuPassword').classList.add('active');
+                document.getElementById('navbarTitle').innerText = 'လုံခြုံရေးနှင့် စကားဝှက်ပြောင်းလဲခြင်း';
+            }
+        }
+
+        // 🛠️ Dynamic Service Type Data Mapping
+        const serviceData = {
+            Hardware: [
+                { value: "Display", text: "LCD / Display" },
+                { value: "Battery", text: "Battery Change" },
+                { value: "CPU", text: "CPU / IC Repair" },
+                { value: "Charging", text: "Charging Port Repair" },
+                { value: "BackShell", text: "Backshell / Frame Replacement" }
+            ],
+            Software: [
+                { value: "Flashing", text: "Firmware Flashing / Bootloop Fix" },
+                { value: "Unlock", text: "FRP / Account / Pattern Unlock" },
+                { value: "Error", text: "System Error / Logo Hang Fix" },
+                { value: "Backup", text: "Data Backup & Recovery" }
+            ]
+        };
+
+        document.getElementById('serviceGroup').addEventListener('change', function() {
+            const group = this.value;
+            const typeSelect = document.getElementById('serviceType');
+            typeSelect.innerHTML = '<option value="">Select Service Type</option>';
+            
+            if (serviceData[group]) {
+                serviceData[group].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.value;
+                    option.text = item.text;
+                    typeSelect.appendChild(option);
+                });
+            }
+        });
+
+        // 💾 LocalStorage ကနေ Record ပြန်ဆွဲခြင်း စနစ်
+        let repairRecords = JSON.parse(localStorage.getItem('repairRecords')) || [];
         let currentVoucherNum = 1;
+        
+        function calculateNextVoucher() {
+            if (repairRecords.length > 0) {
+                const lastVId = repairRecords[repairRecords.length - 1].vId;
+                const lastNum = parseInt(lastVId.replace("AE-", ""));
+                if (!isNaN(lastNum)) {
+                    currentVoucherNum = lastNum + 1;
+                }
+            } else {
+                currentVoucherNum = 1;
+            }
+        }
 
         function updateVoucherIdDisplay() {
+            calculateNextVoucher();
             document.getElementById('voucherId').value = "AE-" + String(currentVoucherNum).padStart(2, '0');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('phoneListBody');
+            tbody.innerHTML = '';
+            
+            repairRecords.forEach((data, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-weight: bold; color: #3c8dbc;">${data.vId}</td>
+                    <td><b>${data.customer}</b><br><small style="color:#666;">${data.phone}</small></td>
+                    <td>${data.model}</td>
+                    <td>${data.color}</td>
+                    <td style="color: #00a65a; font-weight: bold;">${Number(data.cost).toLocaleString()} MMK</td>
+                    <td><button class="btn-print" onclick="printVoucher(${index})">Print</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('todayCountText').innerText = `ယနေ့လာအပ် ဖုန်းစာရင်း (${repairRecords.length}) လုံး`;
         }
 
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('repairDate').value = today;
 
-        // Register စနစ်
+        // Register ခလုတ်
         document.getElementById('registerBtn').addEventListener('click', function() {
             const vId = document.getElementById('voucherId').value;
-            const customer = document.getElementById('customerName').value;
-            const phone = document.getElementById('customerPhone').value;
-            const model = document.getElementById('deviceModel').value;
-            const color = document.getElementById('phoneColor').value || '-';
+            const customer = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const model = document.getElementById('deviceModel').value.trim();
+            const color = document.getElementById('phoneColor').value.trim() || '-';
             const cost = document.getElementById('estimatedCost').value || '0';
             const sGroup = document.getElementById('serviceGroup').value || '';
             const sType = document.getElementById('serviceType').value || '';
             const jobType = sType ? `${sGroup} (${sType})` : (sGroup || 'General Service');
             const date = document.getElementById('repairDate').value;
-            const remark = document.getElementById('remarkDetail').value || '-';
-            const imei = document.getElementById('imeiNo').value || '-';
+            const remark = document.getElementById('remarkDetail').value.trim() || '-';
+            const imei = document.getElementById('imeiNo').value.trim() || '-';
 
             if(!customer || !model) {
                 alert('ကျေးဇူးပြု၍ Customer Name နှင့် Device Model ကို ဖြည့်စွက်ပေးပါဗျာ။');
                 return;
             }
 
-            const recordIndex = repairRecords.length;
             repairRecords.push({ vId, customer, phone, model, color, cost, jobType, date, remark, imei });
+            localStorage.setItem('repairRecords', JSON.stringify(repairRecords));
 
-            const tbody = document.getElementById('phoneListBody');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td style="font-weight: bold; color: #3c8dbc;">${vId}</td>
-                <td><b>${customer}</b><br><small style="color:#666;">${phone}</small></td>
-                <td>${model}</td>
-                <td>${color}</td>
-                <td style="color: #00a65a; font-weight: bold;">${Number(cost).toLocaleString()} MMK</td>
-                <td><button class="btn-print" onclick="printVoucher(${recordIndex})">Print</button></td>
-            `;
-            tbody.appendChild(row);
-
-            document.getElementById('todayCountText').innerText = `ယနေ့လာအပ် ဖုန်းစာရင်း (${repairRecords.length}) လုံး`;
+            renderTable();
 
             // Form Fields ပြန်ရှင်းခြင်း
             document.getElementById('customerName').value = '';
@@ -419,122 +657,43 @@
             document.getElementById('estimatedCost').value = '0';
             document.getElementById('remarkDetail').value = '';
             document.getElementById('imeiNo').value = '';
+            document.getElementById('serviceGroup').value = '';
+            document.getElementById('serviceType').value = '<option value="">Select Service Type</option>';
 
-            currentVoucherNum++;
             updateVoucherIdDisplay();
-
             alert('ဆားဗစ်အချက်အလက်ကို စာရင်းထဲသို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ ခင်ဗျာ။');
         });
 
         // 🖨️ A5 Print Function
         function printVoucher(index) {
             const data = repairRecords[index];
-            
             const dateParts = data.date.split('-');
             const formattedDate = dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : data.date;
 
             const printWindow = window.open('', '_blank', 'width=800,height=1000');
-            
             const htmlContent = `
                 <html>
                 <head>
                     <title>Print Voucher - ${data.vId}</title>
                     <style>
-                        @page {
-                            size: A5 portrait;
-                            margin: 5mm;
-                        }
-                        body { 
-                            font-family: 'Segoe UI', Arial, sans-serif, 'Pyidaungsu'; 
-                            padding: 10px; 
-                            color: #000; 
-                            background-color: #fff;
-                            font-size: 12px;
-                        }
-                        .main-container {
-                            width: 100%;
-                            max-width: 140mm;
-                            margin: 0 auto;
-                        }
-                        .top-voucher-box {
-                            border: 1px solid #000;
-                            padding: 12px;
-                            position: relative;
-                            border-radius: 4px;
-                            min-height: 240px;
-                        }
-                        .watermark {
-                            position: absolute;
-                            top: 40%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            font-size: 70px;
-                            font-weight: 900;
-                            color: rgba(0, 0, 0, 0.05);
-                            z-index: 0;
-                            letter-spacing: 5px;
-                        }
-                        .content-inner {
-                            position: relative;
-                            z-index: 1;
-                        }
-                        .header-table, .info-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-                        .header-table td {
-                            vertical-align: top;
-                        }
-                        .info-table td {
-                            padding: 4px 2px;
-                            vertical-align: top;
-                        }
+                        @page { size: A5 portrait; margin: 5mm; }
+                        body { font-family: 'Segoe UI', Arial, sans-serif, 'Pyidaungsu'; padding: 10px; color: #000; background-color: #fff; font-size: 12px; }
+                        .main-container { width: 100%; max-width: 140mm; margin: 0 auto; }
+                        .top-voucher-box { border: 1px solid #000; padding: 12px; position: relative; border-radius: 4px; min-height: 240px; }
+                        .watermark { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 70px; font-weight: 900; color: rgba(0, 0, 0, 0.05); z-index: 0; letter-spacing: 5px; }
+                        .content-inner { position: relative; z-index: 1; }
+                        .header-table, .info-table { width: 100%; border-collapse: collapse; }
+                        .header-table td { vertical-align: top; }
+                        .info-table td { padding: 4px 2px; vertical-align: top; }
                         .label-text { font-weight: bold; }
-                        .terms-box {
-                            margin-top: 12px;
-                            font-size: 10.5px;
-                            line-height: 1.4;
-                            font-weight: 500;
-                        }
-                        .received-sign {
-                            text-align: right;
-                            margin-top: 5px;
-                            font-weight: bold;
-                            font-size: 11px;
-                        }
-                        .divider {
-                            border-top: 1px dashed #000;
-                            margin: 15px 0;
-                            position: relative;
-                        }
-                        .divider-label {
-                            position: absolute;
-                            top: -8px;
-                            left: 10px;
-                            background: #fff;
-                            padding: 0 5px;
-                            font-size: 11px;
-                            font-weight: bold;
-                        }
-                        .twin-columns {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 15px;
-                        }
-                        .sub-receipt-box {
-                            border: 1px solid #ccc;
-                            padding: 8px;
-                            border-radius: 3px;
-                            font-size: 10.5px;
-                            line-height: 1.4;
-                        }
-                        .sub-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-                        .sub-table td {
-                            padding: 2px 0;
-                        }
+                        .terms-box { margin-top: 12px; font-size: 10.5px; line-height: 1.4; font-weight: 500; }
+                        .received-sign { text-align: right; margin-top: 5px; font-weight: bold; font-size: 11px; }
+                        .divider { border-top: 1px dashed #000; margin: 15px 0; position: relative; }
+                        .divider-label { position: absolute; top: -8px; left: 10px; background: #fff; padding: 0 5px; font-size: 11px; font-weight: bold; }
+                        .twin-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+                        .sub-receipt-box { border: 1px solid #ccc; padding: 8px; border-radius: 3px; font-size: 10.5px; line-height: 1.4; }
+                        .sub-table { width: 100%; border-collapse: collapse; }
+                        .sub-table td { padding: 2px 0; }
                     </style>
                 </head>
                 <body>
@@ -554,7 +713,6 @@
                                         </td>
                                     </tr>
                                 </table>
-                                
                                 <div style="margin-top: 10px; border-bottom: 1px solid #000; padding-bottom: 5px;">
                                     <table class="info-table">
                                         <tr>
@@ -570,20 +728,16 @@
                                         </tr>
                                     </table>
                                 </div>
-
                                 <div class="terms-box">
                                     *ဘောင်ချာမပါလျှင် ပစ္စည်း (လုံးဝ) မပေးပါ။<br>
                                     *ပြုပြင်ထားသော ပစ္စည်းများ (၁)လကျော်လျှင် လုံးဝ တာဝန်မယူပါ။<br>
                                     *ဖုန်း၏ချို့ယွင်းနေသော အစိတ်အပိုင်းတစ်ခုတည်းကိုသာ တာဝန်ယူပါသည်။<br>
                                     *ရေစိုထားသည့်ဖုန်းများ ပြုပြင်နေစဉ်အတွင်း Power သေလျှင်တာဝန်မယူပါ။
                                 </div>
-                                
                                 <div class="received-sign">လက်ခံရရှိပါသည် .......................</div>
                             </div>
                         </div>
-
                         <div class="divider"><span class="divider-label">Receive</span></div>
-
                         <div class="twin-columns">
                             <div class="sub-receipt-box">
                                 <table class="sub-table">
@@ -610,9 +764,7 @@
                 </body>
                 </html>
             `;
-            
             printWindow.document.write(htmlContent);
-            
             const scriptInline = printWindow.document.createElement('script');
             scriptInline.type = 'text/javascript';
             scriptInline.text = `
@@ -625,7 +777,10 @@
             printWindow.document.close();
         }
 
+        // စနစ်တစ်ခုလုံး ကနဦးစတင်ခြင်း
+        checkLoginStatus();
         updateVoucherIdDisplay();
+        renderTable();
     </script>
 </body>
 </html>
